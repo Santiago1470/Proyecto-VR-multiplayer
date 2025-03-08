@@ -1,34 +1,19 @@
 # Unity generated files
 [Ll]ibrary/
-[Tt]emp/
+/[Tt]emp/
 [Oo]bj/
 [Bb]uild/
+[Bb]uilds/
 [Ll]ogs/
-[Mm]emoryCaptures/
-[Pp]ackages/com.unity.collab-proxy/
 
 # Visual Studio / Rider
 .vscode/
-*.csproj
-*.sln
-*.user
-*.pidb
-*.unityproj
-*.svd
-*.pdb
-*.opendb
-
+.vsconfig
 
 # This .gitignore file should be placed at the root of your Unity project directory
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
-/[Ll]ibrary/
-/[Tt]emp/
-/[Oo]bj/
-/[Bb]uild/
-/[Bb]uilds/
-/[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
 # MemoryCaptures can get excessive in size.
