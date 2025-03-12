@@ -10,6 +10,7 @@ TagManager:
   - PlayerHand
   - Destroyer
   - Object
+  - Cup
   layers:
   - Default
   - TransparentFX
