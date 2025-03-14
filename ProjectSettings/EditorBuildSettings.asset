@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Barking_Dog/3D Free Modular Kit/VR Multi.unity
     guid: 707ab825012c40a4dae1ed33f4808812
+  - enabled: 1
+    path: Assets/Scenes/SampleScene.unity
+    guid: 13f6f87036926f94ab0417ca1b31725c
   m_configObjects:
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: e3aee76b9372917449aef639e2f74814,
       type: 2}
