@@ -579,7 +579,164 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 399484175}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &15256255
+--- !u!54 &15256256
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15256251}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 1
+--- !u!65 &15256264
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15256251}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.5322922, y: 0.22420637, z: 0.4964379}
+  m_Center: {x: -1.262904, y: 0.09162726, z: 1.0236816}
+--- !u!65 &15256265
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15256251}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.6051225, y: 1.519666, z: 0.16737314}
+  m_Center: {x: -0.022339083, y: 1.2758014, z: 1.0051152}
+--- !u!65 &15256266
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15256251}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.4876593, y: 0.46012065, z: 0.4097121}
+  m_Center: {x: 1.2585261, y: 0.06927697, z: 1.034158}
+--- !u!136 &15256267
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15256251}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.4770478
+  m_Height: 2.4177268
+  m_Direction: 2
+  m_Center: {x: 0.0029753018, y: 0.02526246, z: 0.5978179}
+--- !u!136 &15256268
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15256251}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.61951107
+  m_Height: 2.45533
+  m_Direction: 2
+  m_Center: {x: 0.040914193, y: 0.004988205, z: -1.6067067}
+--- !u!114 &15256269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15256251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2472042442
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+--- !u!114 &15256270
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -592,8 +749,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
-  m_Colliders:
-  - {fileID: 15256261}
+  m_Colliders: []
   m_InteractionLayers:
     m_Bits: 1
   m_DistanceCalculationMode: 1
@@ -653,7 +809,7 @@ MonoBehaviour:
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
   m_AttachTransform: {fileID: 1067633707}
-  m_SecondaryAttachTransform: {fileID: 0}
+  m_SecondaryAttachTransform: {fileID: 563495137}
   m_UseDynamicAttach: 0
   m_MatchAttachPosition: 1
   m_MatchAttachRotation: 1
@@ -702,55 +858,7 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 1
---- !u!54 &15256256
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 15256251}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 1
---- !u!114 &15256257
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 15256251}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3423917969
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
---- !u!114 &15256260
+--- !u!114 &15256271
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -782,28 +890,6 @@ MonoBehaviour:
   Interpolate: 1
   SlerpPosition: 0
   isServerAuthoritative: 0
---- !u!64 &15256261
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 15256251}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -8544294545898144913, guid: f682ef5f60170a044ac56bd778fd7f17, type: 3}
 --- !u!4 &15660487 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 450040, guid: 530f5ce44fdac4197a29f5bec8818d85,
@@ -1371,56 +1457,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &42307777
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 42307766}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb1cca572c123384bbcd5da9749cf9b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowOverrideOwnership: 0
-  m_InteractionCheckTime: 2
-  m_IgnoreSocketSelectedCallback: 1
-  m_ResetObjectOnDisconnect: 1
-  m_RelinquishOwnershipAfterTime: 1
-  m_RelinquishOwnershipTime: 5
-  m_UseInteractingChangedEvent: 0
-  OnInteractingChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncHover: 0
-  m_UseHoverEvents: 0
-  HoverNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  HoverNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncSelect: 1
-  m_UseSelectEvents: 0
-  SelectNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  SelectNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncActivate: 1
-  m_UseActivateEvents: 0
-  ActivateNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  ActivateNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FoldoutValues: 010101
-  m_AllowCollisionOwnershipExchange: 1
-  m_MinExchangeVelocityMagitude: 0.025
-  spawnLocked: 1
 --- !u!114 &42307778
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1853,27 +1889,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 399484175}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &60342037
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 60342033}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3409266981
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!54 &60342038
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1901,7 +1916,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
---- !u!114 &60342041
+--- !u!114 &60342046
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1910,30 +1925,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 60342033}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25f7d6f3d19b0524d9be4bc50efbc19a, type: 3}
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  Interpolate: 1
-  SlerpPosition: 0
-  isServerAuthoritative: 0
---- !u!114 &60342042
+  GlobalObjectIdHash: 2878279380
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+--- !u!114 &60342047
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1946,8 +1950,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
-  m_Colliders:
-  - {fileID: 0}
+  m_Colliders: []
   m_InteractionLayers:
     m_Bits: 1
   m_DistanceCalculationMode: 1
@@ -2007,7 +2010,7 @@ MonoBehaviour:
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
   m_AttachTransform: {fileID: 2014817337}
-  m_SecondaryAttachTransform: {fileID: 0}
+  m_SecondaryAttachTransform: {fileID: 2033308857}
   m_UseDynamicAttach: 0
   m_MatchAttachPosition: 1
   m_MatchAttachRotation: 1
@@ -2056,8 +2059,8 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 1
---- !u!64 &60342043
-MeshCollider:
+--- !u!136 &60342048
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2074,10 +2077,43 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -5188267583213058109, guid: f682ef5f60170a044ac56bd778fd7f17, type: 3}
+  serializedVersion: 2
+  m_Radius: 1.1671603
+  m_Height: 3.3891616
+  m_Direction: 1
+  m_Center: {x: 0.034509867, y: 1.2806805, z: -0.11071461}
+--- !u!114 &60342049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60342033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25f7d6f3d19b0524d9be4bc50efbc19a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  Interpolate: 1
+  SlerpPosition: 0
+  isServerAuthoritative: 0
 --- !u!1001 &61409998
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2995,56 +3031,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &76288469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 76288458}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb1cca572c123384bbcd5da9749cf9b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowOverrideOwnership: 0
-  m_InteractionCheckTime: 2
-  m_IgnoreSocketSelectedCallback: 1
-  m_ResetObjectOnDisconnect: 1
-  m_RelinquishOwnershipAfterTime: 1
-  m_RelinquishOwnershipTime: 5
-  m_UseInteractingChangedEvent: 0
-  OnInteractingChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncHover: 0
-  m_UseHoverEvents: 0
-  HoverNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  HoverNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncSelect: 1
-  m_UseSelectEvents: 0
-  SelectNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  SelectNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncActivate: 1
-  m_UseActivateEvents: 0
-  ActivateNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  ActivateNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FoldoutValues: 010101
-  m_AllowCollisionOwnershipExchange: 1
-  m_MinExchangeVelocityMagitude: 0.025
-  spawnLocked: 1
 --- !u!114 &76288470
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10380,7 +10366,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 822fb851fb7e59b46b0a6bb4740889c2,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.3450317
+      value: -20.75
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 822fb851fb7e59b46b0a6bb4740889c2,
         type: 3}
@@ -10390,27 +10376,27 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 822fb851fb7e59b46b0a6bb4740889c2,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -13.619314
+      value: -23.59
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 822fb851fb7e59b46b0a6bb4740889c2,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7117129
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 822fb851fb7e59b46b0a6bb4740889c2,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 822fb851fb7e59b46b0a6bb4740889c2,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.7024705
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 822fb851fb7e59b46b0a6bb4740889c2,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 822fb851fb7e59b46b0a6bb4740889c2,
         type: 3}
@@ -10420,7 +10406,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 822fb851fb7e59b46b0a6bb4740889c2,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -89.251
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 822fb851fb7e59b46b0a6bb4740889c2,
         type: 3}
@@ -21045,56 +21031,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &296578144
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 296578133}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb1cca572c123384bbcd5da9749cf9b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowOverrideOwnership: 0
-  m_InteractionCheckTime: 2
-  m_IgnoreSocketSelectedCallback: 1
-  m_ResetObjectOnDisconnect: 1
-  m_RelinquishOwnershipAfterTime: 1
-  m_RelinquishOwnershipTime: 5
-  m_UseInteractingChangedEvent: 0
-  OnInteractingChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncHover: 0
-  m_UseHoverEvents: 0
-  HoverNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  HoverNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncSelect: 1
-  m_UseSelectEvents: 0
-  SelectNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  SelectNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncActivate: 1
-  m_UseActivateEvents: 0
-  ActivateNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  ActivateNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FoldoutValues: 010101
-  m_AllowCollisionOwnershipExchange: 1
-  m_MinExchangeVelocityMagitude: 0.025
-  spawnLocked: 1
 --- !u!114 &296578145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23487,17 +23423,17 @@ PrefabInstance:
     - target: {fileID: 5377050398273254788, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8.833923
+      value: -9.53
       objectReference: {fileID: 0}
     - target: {fileID: 5377050398273254788, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 13.5
+      value: 10.98
       objectReference: {fileID: 0}
     - target: {fileID: 5377050398273254788, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -7.8
+      value: -6.22
       objectReference: {fileID: 0}
     - target: {fileID: 5377050398273254788, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
@@ -23549,10 +23485,18 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 2014817337}
+    - targetCorrespondingSourceObject: {fileID: -7633397932819702523, guid: f682ef5f60170a044ac56bd778fd7f17,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 563495137}
     - targetCorrespondingSourceObject: {fileID: 5377050398273254788, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1067633707}
+    - targetCorrespondingSourceObject: {fileID: 5377050398273254788, guid: f682ef5f60170a044ac56bd778fd7f17,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2033308857}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 9068470635168670681, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
@@ -23561,19 +23505,19 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 9068470635168670681, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 60342043}
+      addedObject: {fileID: 60342048}
     - targetCorrespondingSourceObject: {fileID: 9068470635168670681, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 60342042}
+      addedObject: {fileID: 60342047}
     - targetCorrespondingSourceObject: {fileID: 9068470635168670681, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 60342037}
+      addedObject: {fileID: 60342046}
     - targetCorrespondingSourceObject: {fileID: 9068470635168670681, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 60342041}
+      addedObject: {fileID: 60342049}
     - targetCorrespondingSourceObject: {fileID: 7272564610935034439, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       insertIndex: -1
@@ -23581,19 +23525,35 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7272564610935034439, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 15256255}
+      addedObject: {fileID: 15256270}
     - targetCorrespondingSourceObject: {fileID: 7272564610935034439, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 15256257}
+      addedObject: {fileID: 15256269}
     - targetCorrespondingSourceObject: {fileID: 7272564610935034439, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 15256260}
+      addedObject: {fileID: 15256271}
     - targetCorrespondingSourceObject: {fileID: 7272564610935034439, guid: f682ef5f60170a044ac56bd778fd7f17,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 15256261}
+      addedObject: {fileID: 15256268}
+    - targetCorrespondingSourceObject: {fileID: 7272564610935034439, guid: f682ef5f60170a044ac56bd778fd7f17,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 15256267}
+    - targetCorrespondingSourceObject: {fileID: 7272564610935034439, guid: f682ef5f60170a044ac56bd778fd7f17,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 15256266}
+    - targetCorrespondingSourceObject: {fileID: 7272564610935034439, guid: f682ef5f60170a044ac56bd778fd7f17,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 15256265}
+    - targetCorrespondingSourceObject: {fileID: 7272564610935034439, guid: f682ef5f60170a044ac56bd778fd7f17,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 15256264}
   m_SourcePrefab: {fileID: 100100000, guid: f682ef5f60170a044ac56bd778fd7f17, type: 3}
 --- !u!1001 &404340553
 PrefabInstance:
@@ -28157,6 +28117,37 @@ MonoBehaviour:
   m_Teleporting:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &563495136
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 563495137}
+  m_Layer: 0
+  m_Name: AttachPointSalyuta
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &563495137
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563495136}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.35, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 60342034}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &564273688
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -47555,56 +47546,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &850090524
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 850090513}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb1cca572c123384bbcd5da9749cf9b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowOverrideOwnership: 0
-  m_InteractionCheckTime: 2
-  m_IgnoreSocketSelectedCallback: 1
-  m_ResetObjectOnDisconnect: 1
-  m_RelinquishOwnershipAfterTime: 1
-  m_RelinquishOwnershipTime: 5
-  m_UseInteractingChangedEvent: 0
-  OnInteractingChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncHover: 0
-  m_UseHoverEvents: 0
-  HoverNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  HoverNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncSelect: 1
-  m_UseSelectEvents: 0
-  SelectNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  SelectNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncActivate: 1
-  m_UseActivateEvents: 0
-  ActivateNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  ActivateNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FoldoutValues: 010101
-  m_AllowCollisionOwnershipExchange: 1
-  m_MinExchangeVelocityMagitude: 0.025
-  spawnLocked: 1
 --- !u!114 &850090525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49416,7 +49357,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.715
+      value: -16.69
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
@@ -49426,27 +49367,27 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -8.639
+      value: -11.086
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: -0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
@@ -49456,7 +49397,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
@@ -49504,10 +49445,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1555420314}
-    - targetCorrespondingSourceObject: {fileID: 3299503948038372559, guid: 58af09145adcdb34c993b33b5c6e7a19,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1555420313}
     - targetCorrespondingSourceObject: {fileID: 8341085030223431271, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       insertIndex: -1
@@ -49528,10 +49465,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1779837233}
-    - targetCorrespondingSourceObject: {fileID: 8341085030223431271, guid: 58af09145adcdb34c993b33b5c6e7a19,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1779837232}
     - targetCorrespondingSourceObject: {fileID: -6070900075407532760, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       insertIndex: -1
@@ -49552,10 +49485,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 42307778}
-    - targetCorrespondingSourceObject: {fileID: -6070900075407532760, guid: 58af09145adcdb34c993b33b5c6e7a19,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 42307777}
     - targetCorrespondingSourceObject: {fileID: -874888178220360250, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       insertIndex: -1
@@ -49576,10 +49505,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 76288470}
-    - targetCorrespondingSourceObject: {fileID: -874888178220360250, guid: 58af09145adcdb34c993b33b5c6e7a19,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 76288469}
     - targetCorrespondingSourceObject: {fileID: 5726203014932320880, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       insertIndex: -1
@@ -49600,10 +49525,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 2126054808}
-    - targetCorrespondingSourceObject: {fileID: 5726203014932320880, guid: 58af09145adcdb34c993b33b5c6e7a19,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2126054807}
     - targetCorrespondingSourceObject: {fileID: 5081910860876161830, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       insertIndex: -1
@@ -49624,10 +49545,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 850090525}
-    - targetCorrespondingSourceObject: {fileID: 5081910860876161830, guid: 58af09145adcdb34c993b33b5c6e7a19,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 850090524}
     - targetCorrespondingSourceObject: {fileID: 3693491472904149667, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       insertIndex: -1
@@ -49648,10 +49565,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1178081007}
-    - targetCorrespondingSourceObject: {fileID: 3693491472904149667, guid: 58af09145adcdb34c993b33b5c6e7a19,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1178081006}
     - targetCorrespondingSourceObject: {fileID: 9041609267197391775, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       insertIndex: -1
@@ -49672,10 +49585,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 296578145}
-    - targetCorrespondingSourceObject: {fileID: 9041609267197391775, guid: 58af09145adcdb34c993b33b5c6e7a19,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 296578144}
     - targetCorrespondingSourceObject: {fileID: 4816075002532836958, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       insertIndex: -1
@@ -49696,10 +49605,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1260449771}
-    - targetCorrespondingSourceObject: {fileID: 4816075002532836958, guid: 58af09145adcdb34c993b33b5c6e7a19,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1260449770}
     - targetCorrespondingSourceObject: {fileID: 9152363913774390056, guid: 58af09145adcdb34c993b33b5c6e7a19,
         type: 3}
       insertIndex: -1
@@ -53145,7 +53050,7 @@ PrefabInstance:
     - target: {fileID: -553728361948169858, guid: e9e85518bc0edf44b9f1a10d257ac819,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10.98
+      value: -20.898
       objectReference: {fileID: 0}
     - target: {fileID: -553728361948169858, guid: e9e85518bc0edf44b9f1a10d257ac819,
         type: 3}
@@ -53155,7 +53060,7 @@ PrefabInstance:
     - target: {fileID: -553728361948169858, guid: e9e85518bc0edf44b9f1a10d257ac819,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -9.188
+      value: -15.055
       objectReference: {fileID: 0}
     - target: {fileID: -553728361948169858, guid: e9e85518bc0edf44b9f1a10d257ac819,
         type: 3}
@@ -60811,56 +60716,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &1178081006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1178080995}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb1cca572c123384bbcd5da9749cf9b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowOverrideOwnership: 0
-  m_InteractionCheckTime: 2
-  m_IgnoreSocketSelectedCallback: 1
-  m_ResetObjectOnDisconnect: 1
-  m_RelinquishOwnershipAfterTime: 1
-  m_RelinquishOwnershipTime: 5
-  m_UseInteractingChangedEvent: 0
-  OnInteractingChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncHover: 0
-  m_UseHoverEvents: 0
-  HoverNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  HoverNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncSelect: 1
-  m_UseSelectEvents: 0
-  SelectNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  SelectNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncActivate: 1
-  m_UseActivateEvents: 0
-  ActivateNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  ActivateNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FoldoutValues: 010101
-  m_AllowCollisionOwnershipExchange: 1
-  m_MinExchangeVelocityMagitude: 0.025
-  spawnLocked: 1
 --- !u!114 &1178081007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62928,56 +62783,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &1260449770
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1260449759}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb1cca572c123384bbcd5da9749cf9b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowOverrideOwnership: 0
-  m_InteractionCheckTime: 2
-  m_IgnoreSocketSelectedCallback: 1
-  m_ResetObjectOnDisconnect: 1
-  m_RelinquishOwnershipAfterTime: 1
-  m_RelinquishOwnershipTime: 5
-  m_UseInteractingChangedEvent: 0
-  OnInteractingChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncHover: 0
-  m_UseHoverEvents: 0
-  HoverNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  HoverNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncSelect: 1
-  m_UseSelectEvents: 0
-  SelectNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  SelectNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncActivate: 1
-  m_UseActivateEvents: 0
-  ActivateNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  ActivateNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FoldoutValues: 010101
-  m_AllowCollisionOwnershipExchange: 1
-  m_MinExchangeVelocityMagitude: 0.025
-  spawnLocked: 1
 --- !u!114 &1260449771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64573,7 +64378,7 @@ PrefabInstance:
     - target: {fileID: 6598815579406187037, guid: 18ddb545287c546e19cc77dc9fbb2189,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6598815579406187037, guid: 18ddb545287c546e19cc77dc9fbb2189,
         type: 3}
@@ -80108,56 +79913,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &1555420313
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1555420302}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb1cca572c123384bbcd5da9749cf9b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowOverrideOwnership: 0
-  m_InteractionCheckTime: 2
-  m_IgnoreSocketSelectedCallback: 1
-  m_ResetObjectOnDisconnect: 1
-  m_RelinquishOwnershipAfterTime: 1
-  m_RelinquishOwnershipTime: 5
-  m_UseInteractingChangedEvent: 0
-  OnInteractingChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncHover: 0
-  m_UseHoverEvents: 0
-  HoverNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  HoverNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncSelect: 1
-  m_UseSelectEvents: 0
-  SelectNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  SelectNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncActivate: 1
-  m_UseActivateEvents: 0
-  ActivateNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  ActivateNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FoldoutValues: 010101
-  m_AllowCollisionOwnershipExchange: 1
-  m_MinExchangeVelocityMagitude: 0.025
-  spawnLocked: 1
 --- !u!114 &1555420314
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82803,6 +82558,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Gantry
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: efb7ba47d81c788449417139076ed389,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1352352546121499841, guid: efb7ba47d81c788449417139076ed389,
         type: 3}
@@ -90264,56 +90024,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &1779837232
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1779837221}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb1cca572c123384bbcd5da9749cf9b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowOverrideOwnership: 0
-  m_InteractionCheckTime: 2
-  m_IgnoreSocketSelectedCallback: 1
-  m_ResetObjectOnDisconnect: 1
-  m_RelinquishOwnershipAfterTime: 1
-  m_RelinquishOwnershipTime: 5
-  m_UseInteractingChangedEvent: 0
-  OnInteractingChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncHover: 0
-  m_UseHoverEvents: 0
-  HoverNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  HoverNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncSelect: 1
-  m_UseSelectEvents: 0
-  SelectNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  SelectNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncActivate: 1
-  m_UseActivateEvents: 0
-  ActivateNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  ActivateNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FoldoutValues: 010101
-  m_AllowCollisionOwnershipExchange: 1
-  m_MinExchangeVelocityMagitude: 0.025
-  spawnLocked: 1
 --- !u!114 &1779837233
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -101683,6 +101393,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.2160981, y: 0.118963, z: 1.3718866}
   m_Center: {x: -0.0042813737, y: 1.6962435, z: 0.8461328}
+--- !u!1 &2033308856
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2033308857}
+  m_Layer: 0
+  m_Name: AttachPointCapsule
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2033308857
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2033308856}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.57, z: -0.88}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 15256252}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2033470875
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -104920,56 +104661,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &2126054807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2126054796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb1cca572c123384bbcd5da9749cf9b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AllowOverrideOwnership: 0
-  m_InteractionCheckTime: 2
-  m_IgnoreSocketSelectedCallback: 1
-  m_ResetObjectOnDisconnect: 1
-  m_RelinquishOwnershipAfterTime: 1
-  m_RelinquishOwnershipTime: 5
-  m_UseInteractingChangedEvent: 0
-  OnInteractingChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncHover: 0
-  m_UseHoverEvents: 0
-  HoverNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  HoverNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncSelect: 1
-  m_UseSelectEvents: 0
-  SelectNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  SelectNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_SyncActivate: 1
-  m_UseActivateEvents: 0
-  ActivateNetworkedEventServer:
-    m_PersistentCalls:
-      m_Calls: []
-  ActivateNetworkedEventAll:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FoldoutValues: 010101
-  m_AllowCollisionOwnershipExchange: 1
-  m_MinExchangeVelocityMagitude: 0.025
-  spawnLocked: 1
 --- !u!114 &2126054808
 MonoBehaviour:
   m_ObjectHideFlags: 0
