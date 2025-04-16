@@ -67,7 +67,7 @@ public class ChemicalTube : MonoBehaviour
             // Configuramos posición y orientación del efecto de partículas en el punto de vertido
             pourEffect.transform.position = pourPoint.position;
             Quaternion pourRotation = pourPoint.rotation;
-            pourRotation *= Quaternion.Euler(110f, 0f, 0f);
+            pourRotation *= Quaternion.Euler(0f, 0f, 0f);
             pourEffect.transform.rotation = pourRotation;
             pourEffect.Play();
         }
@@ -123,4 +123,6 @@ public class ChemicalTube : MonoBehaviour
         if (isPouring)
             StopPouring();
     }
+
+
 }
