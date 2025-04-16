@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEngine.Events;  // Añadido para UnityEvent
+using UnityEngine.XR.Interaction.Toolkit;  // Añadido para interacciones XR
 
 public class ReactionContainer : MonoBehaviour
 {
@@ -15,6 +17,10 @@ public class ReactionContainer : MonoBehaviour
 
     [Header("Reaction Display")]
     public Text reactionText;                   // Texto de UI para mostrar la fórmula actual
+
+    [Header("VR Controls")]
+    public UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable deleteLastButton;   // Botón para eliminar el último elemento
+    public UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable clearAllButton;     // Botón para limpiar todos los elementos
 
     // Lista de elementos vertidos
     private List<ChemicalTube.ChemicalElement> elements = new List<ChemicalTube.ChemicalElement>();
@@ -39,6 +45,10 @@ public class ReactionContainer : MonoBehaviour
         {ChemicalTube.ChemicalElement.Chlorine, new Color(0.2f, 0.8f, 0.2f, 0.8f)},
         {ChemicalTube.ChemicalElement.Sulfur, new Color(0.9f, 0.8f, 0.2f, 0.8f)}
     };
+
+    // Variables para rastrear el estado de interactividad
+    private bool deleteLastInteractable = false;
+    private bool clearAllInteractable = false;
 
     // Identificadores de propiedades en el shader
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
@@ -75,7 +85,63 @@ public class ReactionContainer : MonoBehaviour
             Debug.LogError("No se pudo inicializar el material del líquido.");
         }
 
+        // Configurar listeners para botones VR
+        SetupVRButtons();
+
         UpdateFormula();
+        UpdateButtonStates();
+    }
+
+    // Configuración de botones para VR
+    private void SetupVRButtons()
+    {
+        if (deleteLastButton != null)
+        {
+            deleteLastButton.selectEntered.AddListener(DeleteLastButtonPressed);
+            Debug.Log("Listener añadido al botón VR de eliminar último elemento");
+        }
+        else
+        {
+            Debug.LogWarning("Botón VR de eliminar último elemento no asignado");
+        }
+
+        if (clearAllButton != null)
+        {
+            clearAllButton.selectEntered.AddListener(ClearAllButtonPressed);
+            Debug.Log("Listener añadido al botón VR de limpiar todos los elementos");
+        }
+        else
+        {
+            Debug.LogWarning("Botón VR de limpiar todos los elementos no asignado");
+        }
+    }
+
+    // Maneja la pulsación del botón deleteLastButton en VR
+    private void DeleteLastButtonPressed(SelectEnterEventArgs args)
+    {
+        if (deleteLastInteractable)
+        {
+            RemoveLastElement();
+            Debug.Log("Botón VR de eliminar último elemento presionado");
+        }
+        else
+        {
+            Debug.Log("Botón VR de eliminar último elemento presionado, pero está inactivo");
+        }
+    }
+
+    // Maneja la pulsación del botón clearAllButton en VR
+    private void ClearAllButtonPressed(SelectEnterEventArgs args)
+    {
+        if (clearAllInteractable)
+        {
+            ClearAllElements();
+            Debug.Log("Botón VR de limpiar todos los elementos presionado");
+        }
+        else
+        {
+            Debug.Log("Botón VR de limpiar todos los elementos presionado, pero está inactivo");
+        }
     }
     
     // Actualiza la propiedad de nivel del líquido en el material (sin modificar transformaciones)
@@ -140,6 +206,7 @@ public class ReactionContainer : MonoBehaviour
         float newLevel = Mathf.Max(0.002f, elements.Count * elementLevelIncrement);
         UpdateLiquidVisual(newLevel);
         UpdateFormula();
+        UpdateButtonStates();
         Debug.Log($"Elemento agregado. Total: {elements.Count}, Nivel: {newLevel}");
     }
 
@@ -152,6 +219,7 @@ public class ReactionContainer : MonoBehaviour
             float newLevel = (elements.Count > 0) ? elements.Count * elementLevelIncrement : 0.002f;
             UpdateLiquidVisual(newLevel);
             UpdateFormula();
+            UpdateButtonStates();
             Debug.Log($"Removed last element. Remaining count: {elements.Count}");
         }
         else
@@ -166,7 +234,17 @@ public class ReactionContainer : MonoBehaviour
         elements.Clear();
         UpdateLiquidVisual(0.002f);
         UpdateFormula();
+        UpdateButtonStates();
         Debug.Log("All elements cleared");
+    }
+
+    // Actualiza el estado de interactividad de los botones
+    private void UpdateButtonStates()
+    {
+        deleteLastInteractable = (elements.Count > 0);
+        clearAllInteractable = (elements.Count > 0);
+        
+        Debug.Log($"Button states updated: Delete={deleteLastInteractable}, Clear={clearAllInteractable}");
     }
 
     // Actualiza el texto de la fórmula en la UI
