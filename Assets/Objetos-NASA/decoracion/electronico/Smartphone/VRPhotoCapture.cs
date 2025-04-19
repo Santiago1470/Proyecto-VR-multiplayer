@@ -30,10 +30,10 @@ public class VRPhotoCapture : MonoBehaviour
         if (cuadroTexto != null)
             cuadroTexto.SetActive(true);
 
-        // Sonido de c·mara
+        // Sonido de c√°mara
         if (sonidoCamara != null)
             sonidoCamara.Play();
 
-        // (Opcional) Guardar imagen en archivo o hacer algo m·s
+        // (Opcional) Guardar imagen en archivo o hacer algo m√°s
     }
 }
