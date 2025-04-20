@@ -66992,12 +66992,12 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: ffc3e09b1ba8a19418527c6c56a2d1b4,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.2884
+      value: -0.6204
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ffc3e09b1ba8a19418527c6c56a2d1b4,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.386096
+      value: 2.4328
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ffc3e09b1ba8a19418527c6c56a2d1b4,
         type: 3}
@@ -69612,6 +69612,12 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!4 &821352535 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8383550645295993588, guid: 77ac6b10722bcca4a8baf70e44d89e78,
+    type: 3}
+  m_PrefabInstance: {fileID: 1416022856}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &821998985 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 117856, guid: c76d2d3504ddb4847940a815cad04644,
@@ -118176,6 +118182,7 @@ GameObject:
   - component: {fileID: 1588031567}
   - component: {fileID: 1588031566}
   - component: {fileID: 1588031569}
+  - component: {fileID: 1588031570}
   m_Layer: 0
   m_Name: Quad
   m_TagString: Untagged
@@ -118307,6 +118314,21 @@ VideoPlayer:
   m_WaitForFirstFrame: 1
   m_FrameReadyEventEnabled: 0
   m_VideoShaders: []
+--- !u!114 &1588031570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1588031564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6959638cfc9a8234db783e3fc886060c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  videoPlayer: {fileID: 1588031569}
+  vrCamera: {fileID: 821352535}
+  viewAngleThreshold: 60
 --- !u!1 &1589576383
 GameObject:
   m_ObjectHideFlags: 0
@@ -143536,17 +143558,17 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 6e4272febb68d2648b820a414471b3f6,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -16.731857
+      value: -16.765
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6e4272febb68d2648b820a414471b3f6,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.622
+      value: -0.291
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6e4272febb68d2648b820a414471b3f6,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.610732
+      value: 2.436
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6e4272febb68d2648b820a414471b3f6,
         type: 3}
@@ -154708,6 +154730,7 @@ GameObject:
   - component: {fileID: 1939331919}
   - component: {fileID: 1939331918}
   - component: {fileID: 1939331917}
+  - component: {fileID: 1939331921}
   m_Layer: 0
   m_Name: Quad
   m_TagString: Untagged
@@ -154839,6 +154862,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1939331915}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1939331921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1939331915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6959638cfc9a8234db783e3fc886060c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  videoPlayer: {fileID: 1939331917}
+  vrCamera: {fileID: 821352535}
+  viewAngleThreshold: 60
 --- !u!4 &1942351258 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 416390, guid: c76d2d3504ddb4847940a815cad04644,
@@ -156727,6 +156765,7 @@ GameObject:
   - component: {fileID: 2000809721}
   - component: {fileID: 2000809720}
   - component: {fileID: 2000809719}
+  - component: {fileID: 2000809723}
   m_Layer: 0
   m_Name: Quad
   m_TagString: Untagged
@@ -156858,6 +156897,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2000809717}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2000809723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2000809717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6959638cfc9a8234db783e3fc886060c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  videoPlayer: {fileID: 2000809719}
+  vrCamera: {fileID: 821352535}
+  viewAngleThreshold: 60
 --- !u!4 &2002529113 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 428912, guid: 618681761d79b4f72b0746a3dcd4bff1,
