@@ -26,7 +26,9 @@ public class ReactionContainer : MonoBehaviour
     [SerializeField] private float rewardDropForce = 0.5f;
     
     [Header("Objectives")]
-    [SerializeField] private List<string> objectiveCompounds = new List<string>() { "H2O" };
+    [SerializeField] private List<string> objectiveCompounds = new List<string>() { 
+        "H2O", "CO2", "NH3", "CH4", "H2SO4", "Cl2", "C2H5OH", "HCl" 
+    };
     [SerializeField] private bool autoClearOnReactionComplete = true;
     
     [Header("VR Controls")]
@@ -53,10 +55,24 @@ public class ReactionContainer : MonoBehaviour
     // Diccionarios para mapeo de elementos y compuestos
     private readonly Dictionary<string, Color> chemicalCompounds = new Dictionary<string, Color>() {
         {"H2O", new Color(0f, 0.6f, 1f, 0.8f)},
+        {"CO2", new Color(0.7f, 0.7f, 0.7f, 0.8f)},
+        {"NH3", new Color(0.6f, 0.8f, 0.2f, 0.8f)},
+        {"CH4", new Color(0.3f, 0.5f, 0.9f, 0.8f)},
+        {"H2SO4", new Color(1f, 0.4f, 0.1f, 0.8f)},
+        {"Cl2", new Color(0.2f, 0.9f, 0.2f, 0.8f)},
+        {"C2H5OH", new Color(0.7f, 0.3f, 0.7f, 0.8f)},
+        {"HCl", new Color(0.9f, 0.9f, 0.2f, 0.8f)}
     };
 
     private readonly Dictionary<string, string> compoundNames = new Dictionary<string, string>() {
         {"H2O", "Agua"},
+        {"CO2", "Dióxido de Carbono"},
+        {"NH3", "Amoníaco"},
+        {"CH4", "Metano"},
+        {"H2SO4", "Ácido Sulfúrico"},
+        {"Cl2", "Cloro Molecular"},
+        {"C2H5OH", "Etanol"},
+        {"HCl", "Ácido Clorhídrico"}
     };
 
     private readonly Dictionary<ChemicalTube.ChemicalElement, Color> elementColors = new Dictionary<ChemicalTube.ChemicalElement, Color>() {
@@ -275,9 +291,30 @@ public class ReactionContainer : MonoBehaviour
     {
         Dictionary<ChemicalTube.ChemicalElement, int> elementCounts = CountElements();
 
-        // Solo comprobamos H2O para pruebas
+        // Compuestos conocidos
         if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Hydrogen, 2, ChemicalTube.ChemicalElement.Oxygen, 1))
             return "H2O";
+        
+        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Carbon, 1, ChemicalTube.ChemicalElement.Oxygen, 2))
+            return "CO2";
+        
+        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Nitrogen, 1, ChemicalTube.ChemicalElement.Hydrogen, 3))
+            return "NH3";
+        
+        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Carbon, 1, ChemicalTube.ChemicalElement.Hydrogen, 4))
+            return "CH4";
+        
+        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Hydrogen, 2, ChemicalTube.ChemicalElement.Sulfur, 1, ChemicalTube.ChemicalElement.Oxygen, 4))
+            return "H2SO4";
+        
+        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Chlorine, 2))
+            return "Cl2";
+        
+        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Carbon, 2, ChemicalTube.ChemicalElement.Hydrogen, 5, ChemicalTube.ChemicalElement.Oxygen, 1, ChemicalTube.ChemicalElement.Hydrogen, 1))
+            return "C2H5OH";
+        
+        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Hydrogen, 1, ChemicalTube.ChemicalElement.Chlorine, 1))
+            return "HCl";
         
         // Construir fórmula genérica si no coincide con compuestos conocidos
         return BuildGenericFormula(elementCounts);
@@ -300,15 +337,45 @@ public class ReactionContainer : MonoBehaviour
 
     private bool IsCompound(Dictionary<ChemicalTube.ChemicalElement, int> containerElements, params object[] requiredElements)
     {
-        if (containerElements.Count * 2 != requiredElements.Length)
-            return false;
+        // Special case for C2H5OH which has H twice
+        if (requiredElements.Length == 8)
+        {
+            // The standard compound check won't work for ethanol because H appears twice
+            // Manual check for C2H5OH
+            ChemicalTube.ChemicalElement c = (ChemicalTube.ChemicalElement)requiredElements[0];
+            ChemicalTube.ChemicalElement h1 = (ChemicalTube.ChemicalElement)requiredElements[2];
+            ChemicalTube.ChemicalElement o = (ChemicalTube.ChemicalElement)requiredElements[4];
+            ChemicalTube.ChemicalElement h2 = (ChemicalTube.ChemicalElement)requiredElements[6];
+            
+            int cCount = (int)requiredElements[1];
+            int hTotal = (int)requiredElements[3] + (int)requiredElements[7];
+            int oCount = (int)requiredElements[5];
+            
+            return containerElements.ContainsKey(c) && containerElements[c] == cCount &&
+                   containerElements.ContainsKey(h1) && containerElements[h1] == hTotal &&
+                   containerElements.ContainsKey(o) && containerElements[o] == oCount;
+        }
+        
+        // Regular check for other compounds
+        Dictionary<ChemicalTube.ChemicalElement, int> requiredCounts = new Dictionary<ChemicalTube.ChemicalElement, int>();
         
         for (int i = 0; i < requiredElements.Length; i += 2)
         {
             ChemicalTube.ChemicalElement element = (ChemicalTube.ChemicalElement)requiredElements[i];
             int count = (int)requiredElements[i + 1];
             
-            if (!containerElements.ContainsKey(element) || containerElements[element] != count)
+            if (requiredCounts.ContainsKey(element))
+                requiredCounts[element] += count;
+            else
+                requiredCounts[element] = count;
+        }
+        
+        if (containerElements.Count != requiredCounts.Count)
+            return false;
+            
+        foreach (var kvp in requiredCounts)
+        {
+            if (!containerElements.ContainsKey(kvp.Key) || containerElements[kvp.Key] != kvp.Value)
                 return false;
         }
         
