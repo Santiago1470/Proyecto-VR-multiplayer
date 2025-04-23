@@ -11,7 +11,7 @@ TagManager:
   - Destroyer
   - Object
   - Cup
-  - Price
+  - Prize
   layers:
   - Default
   - TransparentFX
