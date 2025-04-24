@@ -12,6 +12,7 @@ TagManager:
   - Object
   - Cup
   - Prize
+  - Donut
   layers:
   - Default
   - TransparentFX
