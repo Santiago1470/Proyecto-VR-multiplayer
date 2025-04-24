@@ -12,7 +12,8 @@ public class LiquidFiller : MonoBehaviour
     public float minWidth = 0.6f;         
     public float maxWidth = 0.7f;         
 
-    private float currentFill = 0f;
+   // En LiquidFiller.cs
+public float currentFill { get; private set; } = 0f;
 
     void Update()
     {
