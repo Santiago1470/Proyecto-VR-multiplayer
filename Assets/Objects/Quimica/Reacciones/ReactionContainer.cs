@@ -35,14 +35,8 @@ public class ReactionContainer : MonoBehaviour
     [SerializeField] private XRSimpleInteractable deleteLastButton;
     [SerializeField] private XRSimpleInteractable clearAllButton;
 
-    // Constantes para el shader
-    private const float MIN_FILL_AMOUNT = 0.002f;
-    private const float FILL_AMOUNT_PER_ELEMENT = 0.001f;
-    private const float MAX_FILL_AMOUNT = 0.01f;
-
     // Shader Property IDs
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
-    private static readonly int FillAmountId = Shader.PropertyToID("_FillAmount");
 
     // Estado interno
     private List<ChemicalTube.ChemicalElement> elements = new List<ChemicalTube.ChemicalElement>();
@@ -105,11 +99,6 @@ public class ReactionContainer : MonoBehaviour
             Debug.LogError("Material del líquido no asignado. Asigna el material en el Inspector.");
             return;
         }
-        
-        if (!liquidMaterial.HasProperty(FillAmountId))
-        {
-            Debug.LogWarning("El material no tiene la propiedad _FillAmount. Verifica el nombre en el shader.");
-        }
     }
 
     private void InitializeComponents()
@@ -118,7 +107,6 @@ public class ReactionContainer : MonoBehaviour
         if (liquidMaterial != null)
         {
             SetLiquidColor(emptyColor);
-            UpdateLiquidVisual(MIN_FILL_AMOUNT);
         }
 
         // Inicializar punto de spawn para recompensas
@@ -198,8 +186,7 @@ public class ReactionContainer : MonoBehaviour
     public void RegisterPour(ChemicalTube.ChemicalElement element)
     {
         elements.Add(element);
-        float newLevel = CalculateLiquidLevel();
-        UpdateLiquidVisual(newLevel);
+        UpdateLiquidVisual();
         UpdateFormula();
         UpdateButtonStates();
     }
@@ -209,8 +196,7 @@ public class ReactionContainer : MonoBehaviour
         if (elements.Count > 0)
         {
             elements.RemoveAt(elements.Count - 1);
-            float newLevel = CalculateLiquidLevel();
-            UpdateLiquidVisual(newLevel);
+            UpdateLiquidVisual();
             UpdateFormula();
             UpdateButtonStates();
         }
@@ -219,7 +205,7 @@ public class ReactionContainer : MonoBehaviour
     public void ClearAllElements()
     {
         elements.Clear();
-        UpdateLiquidVisual(MIN_FILL_AMOUNT);
+        UpdateLiquidVisual();
         UpdateFormula();
         UpdateButtonStates();
     }
@@ -228,19 +214,9 @@ public class ReactionContainer : MonoBehaviour
 
     #region Liquid Visualization
     
-    private float CalculateLiquidLevel()
-    {
-        return elements.Count > 0 ? 
-            Mathf.Min(elements.Count * FILL_AMOUNT_PER_ELEMENT, MAX_FILL_AMOUNT) : 
-            MIN_FILL_AMOUNT;
-    }
-    
-    private void UpdateLiquidVisual(float level)
+    private void UpdateLiquidVisual()
     {
         if (liquidMaterial == null) return;
-
-        level = Mathf.Clamp(level, MIN_FILL_AMOUNT, MAX_FILL_AMOUNT);
-        liquidMaterial.SetFloat(FillAmountId, level);
         
         // Actualizar color según fórmula
         string formula = GetCurrentFormula();
