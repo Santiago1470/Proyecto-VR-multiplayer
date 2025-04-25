@@ -13,6 +13,7 @@ TagManager:
   - Cup
   - Prize
   - Donut
+  - Coffee
   layers:
   - Default
   - TransparentFX
