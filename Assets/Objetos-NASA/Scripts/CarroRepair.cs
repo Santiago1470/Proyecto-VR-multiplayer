@@ -1,20 +1,34 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class CarroRepair : MonoBehaviour
 {
-    public Transform[] partesSeparadas;  // piezas que quieres mover
-    private bool reparado = false;
+    [Header("Partes separadas del carro")]
+    public List<Transform> partesSeparadas; // Lista de las partes que deben acomodarse
+
+    private int indiceParteActual = 0; // Para llevar control de qué parte acomodar
+
+    [Header("Configuración de reparación")]
+    public Vector3 posicionReparada = Vector3.zero; // Posición final relativa
+    public Vector3 rotacionReparada = new Vector3(-90f, 0f, 0f); // Rotación final relativa
 
     public void Reparar()
     {
-        if (reparado) return;
-
-        foreach (Transform parte in partesSeparadas)
+        if (indiceParteActual < partesSeparadas.Count)
         {
-            parte.localPosition = Vector3.zero;
-            parte.localRotation = Quaternion.Euler(-90f, 0f, 0f);
-        }
+            Transform parteAReparar = partesSeparadas[indiceParteActual];
 
-        reparado = true;
+            // Reparar la posición y rotación local
+            parteAReparar.localPosition = posicionReparada;
+            parteAReparar.localRotation = Quaternion.Euler(rotacionReparada);
+
+            Debug.Log($"Parte reparada: {parteAReparar.name}");
+
+            indiceParteActual++;
+        }
+        else
+        {
+            Debug.Log("¡Todas las partes del carro ya están reparadas!");
+        }
     }
 }
