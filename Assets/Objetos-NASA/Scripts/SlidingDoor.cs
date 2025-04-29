@@ -50,5 +50,16 @@ public class SlidingDoor : MonoBehaviour
         }
         door.localPosition = targetPosition;
     }
+
+    public void AbrirPuertas()
+    {
+        if (!isOpen)
+        {
+            StopAllCoroutines();
+            StartCoroutine(MoveDoor(leftDoor, leftOpenPosition));
+            StartCoroutine(MoveDoor(rightDoor, rightOpenPosition));
+            isOpen = true;
+        }
+    }
 }
 
