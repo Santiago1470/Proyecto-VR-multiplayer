@@ -16,7 +16,7 @@ public class CarroRepair : MonoBehaviour
     [Header("Animación")]
     public float duracionAnimacion = 0.5f; // Tiempo en segundos que tarda en acomodarse
 
-    public SlidingDoor puertaAutomatica;  // Arrastra aquí el objeto con el script SlidingDoor
+    public SlidingDoorCar puertaAutomatica;  // Arrastra aquí el objeto con el script SlidingDoor
 
     public void Reparar()
     {
