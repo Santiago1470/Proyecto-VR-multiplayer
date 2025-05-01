@@ -96,7 +96,6 @@ public class ReactionContainer : MonoBehaviour
     {
         if (liquidMaterial == null)
         {
-            Debug.LogError("Material del líquido no asignado. Asigna el material en el Inspector.");
             return;
         }
     }
@@ -111,12 +110,7 @@ public class ReactionContainer : MonoBehaviour
 
         // Inicializar punto de spawn para recompensas
         InitializeRewardSpawnPoint();
-        
-        // Verificar prefab de recompensa
-        if (finalRewardPrefab == null)
-        {
-            Debug.LogWarning("Prefab de recompensa final no asignado. No se entregará recompensa al completar los objetivos.");
-        }
+       
     }
 
     private void InitializeRewardSpawnPoint()
@@ -126,7 +120,6 @@ public class ReactionContainer : MonoBehaviour
             GameObject spawnPointObj = new GameObject("RewardSpawnPoint");
             rewardSpawnPoint = spawnPointObj.transform;
             rewardSpawnPoint.position = new Vector3(transform.position.x, transform.position.y + rewardDropHeight, transform.position.z);
-            Debug.LogWarning("Punto de spawn para recompensas no asignado. Se ha creado uno predeterminado.");
         }
     }
 
@@ -136,18 +129,9 @@ public class ReactionContainer : MonoBehaviour
         {
             deleteLastButton.selectEntered.AddListener(DeleteLastButtonPressed);
         }
-        else
-        {
-            Debug.LogWarning("Botón VR de eliminar último elemento no asignado");
-        }
-
         if (clearAllButton != null)
         {
             clearAllButton.selectEntered.AddListener(ClearAllButtonPressed);
-        }
-        else
-        {
-            Debug.LogWarning("Botón VR de limpiar todos los elementos no asignado");
         }
     }
 
@@ -501,7 +485,6 @@ public class ReactionContainer : MonoBehaviour
             completedReactions.Add(formula);
             UpdateCompletedReactionsText();
             UpdateObjectiveText();
-            Debug.Log($"Reacción completada: {formula} (Es objetivo: {isObjective})");
         }
     }
 
@@ -595,7 +578,7 @@ public class ReactionContainer : MonoBehaviour
             // Luego otras reacciones válidas
             foreach (string formula in completedReactions.Where(f => !objectiveCompounds.Contains(f)))
             {
-                sb.AppendLine($"✓ {compoundNames[formula]}");
+                sb.AppendLine($"✔{compoundNames[formula]}");
             }
             
             completedReactionsText.text = sb.ToString();
@@ -646,7 +629,6 @@ public class ReactionContainer : MonoBehaviour
     {
         if (finalRewardPrefab == null)
         {
-            Debug.LogError("ERROR: Prefab de recompensa final no asignado. No se puede entregar recompensa final.");
             return;
         }
 
@@ -660,14 +642,11 @@ public class ReactionContainer : MonoBehaviour
         
         if (reward == null)
         {
-            Debug.LogError("ERROR: Falló la instanciación de la recompensa");
             return;
         }
         
         // Configurar físicas
         ConfigureRewardPhysics(reward);
-        
-        Debug.Log("¡Recompensa final generada por completar todos los objetivos!");
     }
 
     private void ConfigureRewardPhysics(GameObject reward)
