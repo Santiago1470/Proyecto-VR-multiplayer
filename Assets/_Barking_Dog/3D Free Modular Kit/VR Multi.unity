@@ -52249,7 +52249,7 @@ ParticleSystemRenderer:
   m_VertexStreams: 00010304
   m_UseCustomTrailVertexStreams: 0
   m_TrailVertexStreams: 00010304
-  m_Mesh: {fileID: -6704820445918265320, guid: 85d5fd076bac71b4ab7edb9ad6f1a155, type: 3}
+  m_Mesh: {fileID: 4977131475666943381, guid: 7c9754c9ea393334ead337c879f4ba0b, type: 3}
   m_Mesh1: {fileID: 0}
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
@@ -106934,6 +106934,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1106023314}
   - component: {fileID: 1106023315}
+  - component: {fileID: 1106023316}
   m_Layer: 0
   m_Name: splurt
   m_TagString: Untagged
@@ -106949,8 +106950,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1106023313}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0.0000001686028, z: 0.000000036935084, w: 1}
+  m_LocalPosition: {x: -0.000087114095, y: 0, z: 0.0000116173305}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -106966,8 +106967,105 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: ee52a8d68ce99ad44be667b2aacb9ae3, type: 3}
-  m_Resource: {fileID: 8300000, guid: ee52a8d68ce99ad44be667b2aacb9ae3, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 988e690cf53dfa14f844e85dd71df9e2, type: 3}
+  m_Resource: {fileID: 8300000, guid: 988e690cf53dfa14f844e85dd71df9e2, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!82 &1106023316
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1106023313}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: ced846ce8360bac409b6d7b2207daca8, type: 3}
+  m_Resource: {fileID: 8300000, guid: ced846ce8360bac409b6d7b2207daca8, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -119550,13 +119648,14 @@ MonoBehaviour:
   autoClearOnReactionComplete: 1
   deleteLastButton: {fileID: 120432742}
   clearAllButton: {fileID: 532718281}
-  reactionParticles: {fileID: 0}
-  reactionAudioSource: {fileID: 1106023315}
-  reactionCompletedSound: {fileID: 8300000, guid: 988e690cf53dfa14f844e85dd71df9e2,
+  reactionParticles: {fileID: 543489600}
+  audioSource: {fileID: 1106023315}
+  reactionCompleteSound: {fileID: 8300000, guid: 988e690cf53dfa14f844e85dd71df9e2,
     type: 3}
-  allObjectivesCompletedSound: {fileID: 8300000, guid: ced846ce8360bac409b6d7b2207daca8,
+  allObjectivesCompleteSound: {fileID: 8300000, guid: ced846ce8360bac409b6d7b2207daca8,
     type: 3}
-  particlesDuration: 2
+  reactionVolume: 0.6
+  completionVolume: 1
 --- !u!1001 &1200958048
 PrefabInstance:
   m_ObjectHideFlags: 0

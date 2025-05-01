@@ -37,11 +37,14 @@ public class ReactionContainer : MonoBehaviour
 
     [Header("Reaction Effects")]
     [SerializeField] private ParticleSystem reactionParticles;
-    [SerializeField] private AudioSource reactionAudioSource;
-    [SerializeField] private AudioClip reactionCompletedSound;
-    [SerializeField] private AudioClip allObjectivesCompletedSound;
-    [SerializeField] private float particlesDuration = 2f;
-
+    
+    [Header("Audio Effects")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip reactionCompleteSound;
+    [SerializeField] private AudioClip allObjectivesCompleteSound;
+    [SerializeField] private float reactionVolume = 0.7f;
+    [SerializeField] private float completionVolume = 1.0f;
+    
     // Shader Property IDs
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
@@ -88,28 +91,13 @@ public class ReactionContainer : MonoBehaviour
 
     private void Awake()
     {
-        ValidateLiquidMaterial();
-    }
-
-    private void Start()
-    {
-        InitializeComponents();
-        SetupVRButtons();
-        UpdateUI();
-    }
-
-    #region Initialization Methods
-    
-    private void ValidateLiquidMaterial()
-    {
         if (liquidMaterial == null)
         {
             Debug.LogWarning("Liquid material not assigned!");
-            return;
         }
     }
 
-    private void InitializeComponents()
+    private void Start()
     {
         // Inicializar líquido
         if (liquidMaterial != null)
@@ -117,48 +105,30 @@ public class ReactionContainer : MonoBehaviour
             SetLiquidColor(emptyColor);
         }
 
+        // Verificar AudioSource
+        if (audioSource == null)
+        {
+            // Intentar buscar un AudioSource existente
+            audioSource = GetComponent<AudioSource>();
+            
+            // Si no hay uno, crear uno nuevo
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.playOnAwake = false;
+                audioSource.spatialBlend = 1.0f; // Audio 3D
+            }
+        }
+
         // Inicializar punto de spawn para recompensas
-        InitializeRewardSpawnPoint();
-        
-        // Verificar componentes de efectos
-        ValidateEffectsComponents();
-    }
-
-    private void ValidateEffectsComponents()
-    {
-        if (reactionParticles == null)
-        {
-            Debug.LogWarning("Reaction particles not assigned!");
-        }
-        
-        if (reactionAudioSource == null)
-        {
-            Debug.LogWarning("Audio source not assigned!");
-        }
-        
-        if (reactionCompletedSound == null)
-        {
-            Debug.LogWarning("Reaction completed sound not assigned!");
-        }
-        
-        if (allObjectivesCompletedSound == null)
-        {
-            Debug.LogWarning("All objectives completed sound not assigned!");
-        }
-    }
-
-    private void InitializeRewardSpawnPoint()
-    {
         if (rewardSpawnPoint == null)
         {
             GameObject spawnPointObj = new GameObject("RewardSpawnPoint");
             rewardSpawnPoint = spawnPointObj.transform;
             rewardSpawnPoint.position = new Vector3(transform.position.x, transform.position.y + rewardDropHeight, transform.position.z);
         }
-    }
-
-    private void SetupVRButtons()
-    {
+        
+        // Configurar botones VR
         if (deleteLastButton != null)
         {
             deleteLastButton.selectEntered.AddListener(DeleteLastButtonPressed);
@@ -167,20 +137,10 @@ public class ReactionContainer : MonoBehaviour
         {
             clearAllButton.selectEntered.AddListener(ClearAllButtonPressed);
         }
+        
+        UpdateUI();
     }
 
-    private void UpdateUI()
-    {
-        UpdateFormula();
-        UpdateButtonStates();
-        UpdateObjectiveText();
-        UpdateCompletedReactionsText();
-    }
-    
-    #endregion
-
-    #region Button Handlers
-    
     private void DeleteLastButtonPressed(SelectEnterEventArgs args)
     {
         if (deleteLastInteractable && !reactionProcessing)
@@ -196,10 +156,6 @@ public class ReactionContainer : MonoBehaviour
             ClearAllElements();
         }
     }
-    
-    #endregion
-
-    #region Public Methods
     
     public void RegisterPour(ChemicalTube.ChemicalElement element)
     {
@@ -236,10 +192,6 @@ public class ReactionContainer : MonoBehaviour
             UpdateButtonStates();
         }
     }
-    
-    #endregion
-
-    #region Liquid Visualization
     
     private void UpdateLiquidVisual()
     {
@@ -279,10 +231,6 @@ public class ReactionContainer : MonoBehaviour
         liquidMaterial.SetColor("_BaseColor", color);
         liquidMaterial.SetColor("_Color", color);
     }
-    
-    #endregion
-
-    #region Chemical Formula Processing
     
     private string GetCurrentFormula()
     {
@@ -417,10 +365,6 @@ public class ReactionContainer : MonoBehaviour
         }
     }
     
-    #endregion
-
-    #region Reaction Completion
-
     private void CheckForCompletedReactionAfterPour()
     {
         if (reactionProcessing)
@@ -441,7 +385,7 @@ public class ReactionContainer : MonoBehaviour
         // Verificar si es el objetivo actual
         if (formula == objectiveCompounds[currentObjectiveIndex])
         {
-            yield return CelebrateReaction(formula);
+            yield return StartCoroutine(CelebrateReaction(formula));
         }
         else if (objectiveCompounds.Contains(formula))
         {
@@ -459,17 +403,21 @@ public class ReactionContainer : MonoBehaviour
         
         if (allCompleted && !finalRewardGiven)
         {
-            yield return ShowCompletionMessage();
+            yield return StartCoroutine(ShowCompletionMessage());
             SpawnFinalReward();
-            PlayAllObjectivesCompletedSound();
             finalRewardGiven = true;
         }
+        
+        // Esperar antes de vaciar el contenedor
+        yield return new WaitForSeconds(1.0f);
         
         // Vaciar automáticamente los elementos si está habilitado
         if (autoClearOnReactionComplete)
         {
-            yield return new WaitForSeconds(1.0f);
-            ClearAllElements();
+            elements.Clear();
+            UpdateLiquidVisual();
+            UpdateFormula();
+            UpdateButtonStates();
         }
         
         // Avanzar al siguiente objetivo no completado si está disponible
@@ -483,8 +431,22 @@ public class ReactionContainer : MonoBehaviour
 
     private IEnumerator CelebrateReaction(string formula)
     {
-        // Iniciar efectos visuales y de sonido
-        PlayReactionEffects();
+        // Iniciar efectos visuales
+        if (reactionParticles != null)
+        {
+            reactionParticles.Clear();
+            reactionParticles.Play();
+            
+            // Detener después de la duración especificada
+            StartCoroutine(StopParticlesAfterDelay(2.0f));
+        }
+        
+        // Reproducir sonido de reacción completada
+        if (audioSource != null && reactionCompleteSound != null)
+        {
+            audioSource.volume = reactionVolume;
+            audioSource.PlayOneShot(reactionCompleteSound);
+        }
         
         if (reactionNameText != null)
         {
@@ -509,52 +471,25 @@ public class ReactionContainer : MonoBehaviour
         AddCompletedReaction(formula, true);
     }
 
-    private void PlayReactionEffects()
+    private IEnumerator StopParticlesAfterDelay(float duration)
     {
-        // Reproducir sistema de partículas
-        if (reactionParticles != null)
-        {
-            reactionParticles.Clear();
-            reactionParticles.Play();
-            
-            // Detener después de la duración especificada
-            StartCoroutine(StopParticlesAfterDelay());
-        }
-        
-        // Reproducir sonido de reacción completada
-        PlayReactionCompletedSound();
-    }
-
-    private IEnumerator StopParticlesAfterDelay()
-    {
-        yield return new WaitForSeconds(particlesDuration);
+        yield return new WaitForSeconds(duration);
         if (reactionParticles != null && reactionParticles.isPlaying)
         {
             reactionParticles.Stop();
         }
     }
 
-    private void PlayReactionCompletedSound()
-    {
-        if (reactionAudioSource != null && reactionCompletedSound != null)
-        {
-            reactionAudioSource.clip = reactionCompletedSound;
-            reactionAudioSource.Play();
-        }
-    }
-
-    private void PlayAllObjectivesCompletedSound()
-    {
-        if (reactionAudioSource != null && allObjectivesCompletedSound != null)
-        {
-            reactionAudioSource.clip = allObjectivesCompletedSound;
-            reactionAudioSource.Play();
-        }
-    }
-
     private IEnumerator ShowCompletionMessage()
     {
         yield return new WaitForSeconds(1.5f);
+        
+        // Reproducir sonido de todos los objetivos completados
+        if (audioSource != null && allObjectivesCompleteSound != null)
+        {
+            audioSource.volume = completionVolume;
+            audioSource.PlayOneShot(allObjectivesCompleteSound);
+        }
         
         if (reactionNameText != null)
         {
@@ -614,9 +549,13 @@ public class ReactionContainer : MonoBehaviour
         }
     }
     
-    #endregion
-
-    #region UI Updates
+    private void UpdateUI()
+    {
+        UpdateFormula();
+        UpdateButtonStates();
+        UpdateObjectiveText();
+        UpdateCompletedReactionsText();
+    }
     
     private void UpdateFormula()
     {
@@ -729,10 +668,6 @@ public class ReactionContainer : MonoBehaviour
         clearAllInteractable = (elements.Count > 0);
     }
     
-    #endregion
-
-    #region Reward Handling
-    
     private void SpawnFinalReward()
     {
         if (finalRewardPrefab == null)
@@ -756,11 +691,6 @@ public class ReactionContainer : MonoBehaviour
         }
         
         // Configurar físicas
-        ConfigureRewardPhysics(reward);
-    }
-
-    private void ConfigureRewardPhysics(GameObject reward)
-    {
         Rigidbody rb = reward.GetComponent<Rigidbody>();
         if (rb == null)
         {
@@ -785,6 +715,4 @@ public class ReactionContainer : MonoBehaviour
             Random.Range(-0.2f, 0.2f)
         ), ForceMode.Impulse);
     }
-    
-    #endregion
 }
