@@ -35,6 +35,13 @@ public class ReactionContainer : MonoBehaviour
     [SerializeField] private XRSimpleInteractable deleteLastButton;
     [SerializeField] private XRSimpleInteractable clearAllButton;
 
+    [Header("Reaction Effects")]
+    [SerializeField] private ParticleSystem reactionParticles;
+    [SerializeField] private AudioSource reactionAudioSource;
+    [SerializeField] private AudioClip reactionCompletedSound;
+    [SerializeField] private AudioClip allObjectivesCompletedSound;
+    [SerializeField] private float particlesDuration = 2f;
+
     // Shader Property IDs
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
@@ -45,6 +52,7 @@ public class ReactionContainer : MonoBehaviour
     private bool finalRewardGiven = false;
     private bool deleteLastInteractable = false;
     private bool clearAllInteractable = false;
+    private bool reactionProcessing = false; // Bandera para evitar procesamiento simultáneo
 
     // Diccionarios para mapeo de elementos y compuestos
     private readonly Dictionary<string, Color> chemicalCompounds = new Dictionary<string, Color>() {
@@ -96,6 +104,7 @@ public class ReactionContainer : MonoBehaviour
     {
         if (liquidMaterial == null)
         {
+            Debug.LogWarning("Liquid material not assigned!");
             return;
         }
     }
@@ -110,7 +119,32 @@ public class ReactionContainer : MonoBehaviour
 
         // Inicializar punto de spawn para recompensas
         InitializeRewardSpawnPoint();
-       
+        
+        // Verificar componentes de efectos
+        ValidateEffectsComponents();
+    }
+
+    private void ValidateEffectsComponents()
+    {
+        if (reactionParticles == null)
+        {
+            Debug.LogWarning("Reaction particles not assigned!");
+        }
+        
+        if (reactionAudioSource == null)
+        {
+            Debug.LogWarning("Audio source not assigned!");
+        }
+        
+        if (reactionCompletedSound == null)
+        {
+            Debug.LogWarning("Reaction completed sound not assigned!");
+        }
+        
+        if (allObjectivesCompletedSound == null)
+        {
+            Debug.LogWarning("All objectives completed sound not assigned!");
+        }
     }
 
     private void InitializeRewardSpawnPoint()
@@ -149,7 +183,7 @@ public class ReactionContainer : MonoBehaviour
     
     private void DeleteLastButtonPressed(SelectEnterEventArgs args)
     {
-        if (deleteLastInteractable)
+        if (deleteLastInteractable && !reactionProcessing)
         {
             RemoveLastElement();
         }
@@ -157,7 +191,7 @@ public class ReactionContainer : MonoBehaviour
 
     private void ClearAllButtonPressed(SelectEnterEventArgs args)
     {
-        if (clearAllInteractable)
+        if (clearAllInteractable && !reactionProcessing)
         {
             ClearAllElements();
         }
@@ -169,15 +203,21 @@ public class ReactionContainer : MonoBehaviour
     
     public void RegisterPour(ChemicalTube.ChemicalElement element)
     {
+        if (reactionProcessing)
+            return;
+            
         elements.Add(element);
         UpdateLiquidVisual();
         UpdateFormula();
         UpdateButtonStates();
+        
+        // Verificar si se ha formado un compuesto conocido
+        CheckForCompletedReactionAfterPour();
     }
 
     public void RemoveLastElement()
     {
-        if (elements.Count > 0)
+        if (elements.Count > 0 && !reactionProcessing)
         {
             elements.RemoveAt(elements.Count - 1);
             UpdateLiquidVisual();
@@ -188,10 +228,13 @@ public class ReactionContainer : MonoBehaviour
 
     public void ClearAllElements()
     {
-        elements.Clear();
-        UpdateLiquidVisual();
-        UpdateFormula();
-        UpdateButtonStates();
+        if (!reactionProcessing)
+        {
+            elements.Clear();
+            UpdateLiquidVisual();
+            UpdateFormula();
+            UpdateButtonStates();
+        }
     }
     
     #endregion
@@ -206,12 +249,6 @@ public class ReactionContainer : MonoBehaviour
         string formula = GetCurrentFormula();
         Color newColor = GetColorForFormula(formula);
         SetLiquidColor(newColor);
-        
-        // Verificar si se completó alguna reacción
-        if (chemicalCompounds.ContainsKey(formula))
-        {
-            CheckForCompletedReaction(formula);
-        }
     }
 
     private Color GetColorForFormula(string formula)
@@ -270,7 +307,7 @@ public class ReactionContainer : MonoBehaviour
         if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Chlorine, 2))
             return "Cl2";
         
-        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Carbon, 2, ChemicalTube.ChemicalElement.Hydrogen, 5, ChemicalTube.ChemicalElement.Oxygen, 1, ChemicalTube.ChemicalElement.Hydrogen, 1))
+        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Carbon, 2, ChemicalTube.ChemicalElement.Hydrogen, 6, ChemicalTube.ChemicalElement.Oxygen, 1))
             return "C2H5OH";
         
         if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Hydrogen, 1, ChemicalTube.ChemicalElement.Chlorine, 1))
@@ -297,23 +334,19 @@ public class ReactionContainer : MonoBehaviour
 
     private bool IsCompound(Dictionary<ChemicalTube.ChemicalElement, int> containerElements, params object[] requiredElements)
     {
-        // Special case for C2H5OH which has H twice
-        if (requiredElements.Length == 8)
+        // Fix for ethanol (C2H5OH)
+        if (requiredElements.Length == 6 && 
+            (ChemicalTube.ChemicalElement)requiredElements[0] == ChemicalTube.ChemicalElement.Carbon &&
+            (int)requiredElements[1] == 2 &&
+            (ChemicalTube.ChemicalElement)requiredElements[2] == ChemicalTube.ChemicalElement.Hydrogen &&
+            (int)requiredElements[3] == 6 &&
+            (ChemicalTube.ChemicalElement)requiredElements[4] == ChemicalTube.ChemicalElement.Oxygen &&
+            (int)requiredElements[5] == 1)
         {
-            // The standard compound check won't work for ethanol because H appears twice
-            // Manual check for C2H5OH
-            ChemicalTube.ChemicalElement c = (ChemicalTube.ChemicalElement)requiredElements[0];
-            ChemicalTube.ChemicalElement h1 = (ChemicalTube.ChemicalElement)requiredElements[2];
-            ChemicalTube.ChemicalElement o = (ChemicalTube.ChemicalElement)requiredElements[4];
-            ChemicalTube.ChemicalElement h2 = (ChemicalTube.ChemicalElement)requiredElements[6];
-            
-            int cCount = (int)requiredElements[1];
-            int hTotal = (int)requiredElements[3] + (int)requiredElements[7];
-            int oCount = (int)requiredElements[5];
-            
-            return containerElements.ContainsKey(c) && containerElements[c] == cCount &&
-                   containerElements.ContainsKey(h1) && containerElements[h1] == hTotal &&
-                   containerElements.ContainsKey(o) && containerElements[o] == oCount;
+            // Verificación directa para etanol (C2H6O)
+            return containerElements.ContainsKey(ChemicalTube.ChemicalElement.Carbon) && containerElements[ChemicalTube.ChemicalElement.Carbon] == 2 &&
+                   containerElements.ContainsKey(ChemicalTube.ChemicalElement.Hydrogen) && containerElements[ChemicalTube.ChemicalElement.Hydrogen] == 6 &&
+                   containerElements.ContainsKey(ChemicalTube.ChemicalElement.Oxygen) && containerElements[ChemicalTube.ChemicalElement.Oxygen] == 1;
         }
         
         // Regular check for other compounds
@@ -387,30 +420,39 @@ public class ReactionContainer : MonoBehaviour
     #endregion
 
     #region Reaction Completion
-    
-    private void CheckForCompletedReaction(string formula)
+
+    private void CheckForCompletedReactionAfterPour()
     {
-        if (!objectiveCompounds.Contains(formula) || completedReactions.Contains(formula)) 
+        if (reactionProcessing)
             return;
             
+        string formula = GetCurrentFormula();
+        
+        if (chemicalCompounds.ContainsKey(formula) && !completedReactions.Contains(formula))
+        {
+            StartCoroutine(ProcessCompletedReaction(formula));
+        }
+    }
+    
+    private IEnumerator ProcessCompletedReaction(string formula)
+    {
+        reactionProcessing = true;
+        
         // Verificar si es el objetivo actual
         if (formula == objectiveCompounds[currentObjectiveIndex])
         {
-            StartCoroutine(CelebrateReaction(formula));
+            yield return CelebrateReaction(formula);
+        }
+        else if (objectiveCompounds.Contains(formula))
+        {
+            // Es un objetivo válido pero no el actual
+            AddCompletedReaction(formula, true);
         }
         else
         {
-            // Es un compuesto válido pero no el objetivo actual
+            // Es un compuesto válido pero no un objetivo
             AddCompletedReaction(formula, false);
         }
-    }
-
-    private IEnumerator CelebrateReaction(string formula)
-    {
-        yield return PlayCelebrationAnimation(formula);
-        
-        // Registrar como completado
-        AddCompletedReaction(formula, true);
         
         // Verificar si se han completado todos los objetivos
         bool allCompleted = CheckAllObjectivesCompleted();
@@ -419,6 +461,7 @@ public class ReactionContainer : MonoBehaviour
         {
             yield return ShowCompletionMessage();
             SpawnFinalReward();
+            PlayAllObjectivesCompletedSound();
             finalRewardGiven = true;
         }
         
@@ -429,16 +472,20 @@ public class ReactionContainer : MonoBehaviour
             ClearAllElements();
         }
         
-        // Avanzar al siguiente objetivo si está disponible
-        if (currentObjectiveIndex < objectiveCompounds.Count - 1)
+        // Avanzar al siguiente objetivo no completado si está disponible
+        if (!allCompleted)
         {
-            currentObjectiveIndex++;
-            UpdateObjectiveText();
+            UpdateNextObjective();
         }
+        
+        reactionProcessing = false;
     }
 
-    private IEnumerator PlayCelebrationAnimation(string formula)
+    private IEnumerator CelebrateReaction(string formula)
     {
+        // Iniciar efectos visuales y de sonido
+        PlayReactionEffects();
+        
         if (reactionNameText != null)
         {
             reactionNameText.text = $"¡{compoundNames[formula]} completado!";
@@ -456,6 +503,52 @@ public class ReactionContainer : MonoBehaviour
             
             reactionNameText.transform.localScale = Vector3.one;
             reactionNameText.color = Color.white;
+        }
+        
+        // Registrar como completado
+        AddCompletedReaction(formula, true);
+    }
+
+    private void PlayReactionEffects()
+    {
+        // Reproducir sistema de partículas
+        if (reactionParticles != null)
+        {
+            reactionParticles.Clear();
+            reactionParticles.Play();
+            
+            // Detener después de la duración especificada
+            StartCoroutine(StopParticlesAfterDelay());
+        }
+        
+        // Reproducir sonido de reacción completada
+        PlayReactionCompletedSound();
+    }
+
+    private IEnumerator StopParticlesAfterDelay()
+    {
+        yield return new WaitForSeconds(particlesDuration);
+        if (reactionParticles != null && reactionParticles.isPlaying)
+        {
+            reactionParticles.Stop();
+        }
+    }
+
+    private void PlayReactionCompletedSound()
+    {
+        if (reactionAudioSource != null && reactionCompletedSound != null)
+        {
+            reactionAudioSource.clip = reactionCompletedSound;
+            reactionAudioSource.Play();
+        }
+    }
+
+    private void PlayAllObjectivesCompletedSound()
+    {
+        if (reactionAudioSource != null && allObjectivesCompletedSound != null)
+        {
+            reactionAudioSource.clip = allObjectivesCompletedSound;
+            reactionAudioSource.Play();
         }
     }
 
@@ -498,6 +591,27 @@ public class ReactionContainer : MonoBehaviour
             }
         }
         return true;
+    }
+
+    private void UpdateNextObjective()
+    {
+        // Buscar el siguiente objetivo no completado
+        int nextObjectiveIndex = -1;
+        
+        for (int i = 0; i < objectiveCompounds.Count; i++)
+        {
+            if (!completedReactions.Contains(objectiveCompounds[i]))
+            {
+                nextObjectiveIndex = i;
+                break;
+            }
+        }
+        
+        if (nextObjectiveIndex != -1)
+        {
+            currentObjectiveIndex = nextObjectiveIndex;
+            UpdateObjectiveText();
+        }
     }
     
     #endregion
@@ -602,16 +716,10 @@ public class ReactionContainer : MonoBehaviour
         }
         else
         {
-            // Buscar el primer objetivo no completado
-            int nextObjectiveIndex = objectiveCompounds.FindIndex(c => !completedReactions.Contains(c));
-            
-            if (nextObjectiveIndex != -1)
-            {
-                currentObjectiveIndex = nextObjectiveIndex;
-                string currentObjective = objectiveCompounds[currentObjectiveIndex];
-                objectiveText.text = $"<b>Objetivo:</b> Crear {compoundNames[currentObjective]}";
-                objectiveText.color = Color.white;
-            }
+            // Mostrar el objetivo actual
+            string currentObjective = objectiveCompounds[currentObjectiveIndex];
+            objectiveText.text = $"<b>Objetivo:</b> Crear {compoundNames[currentObjective]}";
+            objectiveText.color = Color.white;
         }
     }
 
@@ -629,6 +737,7 @@ public class ReactionContainer : MonoBehaviour
     {
         if (finalRewardPrefab == null)
         {
+            Debug.LogWarning("Final reward prefab not assigned!");
             return;
         }
 
@@ -642,6 +751,7 @@ public class ReactionContainer : MonoBehaviour
         
         if (reward == null)
         {
+            Debug.LogWarning("Failed to instantiate reward!");
             return;
         }
         
