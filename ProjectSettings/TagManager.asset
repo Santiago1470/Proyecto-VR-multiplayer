@@ -15,6 +15,7 @@ TagManager:
   - Donut
   - Coffee
   - Carro
+  - sheets
   layers:
   - Default
   - TransparentFX
