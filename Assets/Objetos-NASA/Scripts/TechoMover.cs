@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class TechoMover : MonoBehaviour
 {
-    public Vector3 destino; // Posición destino al abrir el techo
-    public float duracion = 2f; // Duración del movimiento
+    [Header("Posiciones del techo")]
+    public Vector3 posicionCerrado;  // Posición final al cerrar
+    public Vector3 posicionAbierto;  // Posición final al abrir
+    public float duracion = 2f;      // Tiempo que tarda en moverse
 
     private Vector3 posicionInicial;
     private Vector3 posicionFinal;
@@ -13,7 +15,7 @@ public class TechoMover : MonoBehaviour
     public void AbrirTecho()
     {
         posicionInicial = transform.position;
-        posicionFinal = new Vector3(destino.x, posicionInicial.y, destino.z); // Cambia la X al valor deseado (ej. -2)
+        posicionFinal = posicionAbierto;
         tiempo = 0f;
         moviendo = true;
     }
@@ -21,7 +23,7 @@ public class TechoMover : MonoBehaviour
     public void CerrarTecho()
     {
         posicionInicial = transform.position;
-        posicionFinal = new Vector3(0f, posicionInicial.y, posicionInicial.z); // Regresa al valor inicial (ej. 0)
+        posicionFinal = posicionCerrado;
         tiempo = 0f;
         moviendo = true;
     }
@@ -35,8 +37,9 @@ public class TechoMover : MonoBehaviour
             transform.position = Vector3.Lerp(posicionInicial, posicionFinal, t);
 
             if (t >= 1f)
-                moviendo = false; // Detiene el movimiento una vez alcanzada la posición final
+                moviendo = false;
         }
     }
 }
+
 

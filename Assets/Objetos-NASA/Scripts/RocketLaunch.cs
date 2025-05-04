@@ -7,12 +7,17 @@ public class RocketLaunch : MonoBehaviour
     public float launchSpeed = 10f;
     private bool launching = false;
 
+    public float alturaMaxima = 20f; // Altura para reiniciar
+    private bool yaReinicio = false;
+
     public ParticleSystem launchEffect;
     public TextMeshProUGUI countdownText;
-    public GameObject launchButton; // Segundo botón para lanzar el cohete
-    public TextMeshProUGUI instructionText; // Texto que dice "Presiona este botón..."
-    public TechoMover techo; // Referencia al script que controla el techo
-    public GameObject firstButton; // Primer botón
+    public GameObject launchButton;
+    public GameObject panelInstruccion;
+    public TechoMover techo;
+    public GameObject firstButton;
+
+    public Vector3 posicionInicio = new Vector3(-0.52f, -4.516f, 0.46f); // Puedes cambiarla desde el editor
 
     private Coroutine resetCoroutine;
 
@@ -33,34 +38,94 @@ public class RocketLaunch : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
 
-        // Mostrar texto de instrucción
-        if (instructionText != null)
-            instructionText.text = "Presiona el botón para iniciar el despegue";
+        if (panelInstruccion != null)
+            panelInstruccion.SetActive(true);
 
-        // Mostrar el segundo botón
         if (launchButton != null)
             launchButton.SetActive(true);
 
-        // Detener el reinicio automático
-        if (resetCoroutine != null)
-            StopCoroutine(resetCoroutine);
+        resetCoroutine = StartCoroutine(ResetIfNotLaunched());
     }
 
     public void LaunchRocket()
     {
-        // Si ya se presionó el botón, ocultamos la instrucción y reproducimos el efecto visual
-        if (instructionText != null)
-            instructionText.text = ""; // Quitar mensaje de instrucción
+        if (resetCoroutine != null)
+            StopCoroutine(resetCoroutine);
+
+        if (panelInstruccion != null)
+            panelInstruccion.SetActive(false);
 
         if (launchEffect != null)
             launchEffect.Play();
 
-        launching = true; // El cohete comienza a moverse
+        launching = true;
+    }
+
+    private IEnumerator ResetIfNotLaunched()
+    {
+        yield return new WaitForSeconds(5f);
+
+        if (countdownText != null)
+            countdownText.text = "";
+
+        if (panelInstruccion != null)
+            panelInstruccion.SetActive(false);
+
+        if (launchButton != null)
+            launchButton.SetActive(false);
+
+        if (firstButton != null)
+            firstButton.SetActive(true);
+
+        if (techo != null)
+            techo.CerrarTecho();
+
+        transform.localPosition = posicionInicio;
+        launching = false;
+        yaReinicio = false;
+    }
+
+    private IEnumerator ResetAfterLaunch()
+    {
+        yield return new WaitForSeconds(2f);
+
+        if (countdownText != null)
+            countdownText.text = "";
+
+        if (panelInstruccion != null)
+            panelInstruccion.SetActive(false);
+
+        if (launchButton != null)
+            launchButton.SetActive(false);
+
+        if (firstButton != null)
+            firstButton.SetActive(true);
+
+        if (techo != null)
+            techo.CerrarTecho();
+
+        transform.localPosition = posicionInicio;
+        launching = false;
+        yaReinicio = false;
+    }
+
+    void Start()
+    {
+        // Establece la posición inicial al iniciar
+        transform.localPosition = posicionInicio;
     }
 
     void Update()
     {
         if (launching)
+        {
             transform.Translate(Vector3.up * launchSpeed * Time.deltaTime);
+
+            if (transform.position.y >= alturaMaxima && !yaReinicio)
+            {
+                yaReinicio = true;
+                StartCoroutine(ResetAfterLaunch());
+            }
+        }
     }
 }
