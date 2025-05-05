@@ -119761,7 +119761,7 @@ RectTransform:
   m_GameObject: {fileID: 1125337891}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 244113380}
@@ -143539,7 +143539,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 30
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -209270,6 +209270,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: cuadro-plano-curiosity
+      objectReference: {fileID: 0}
+    - target: {fileID: 7449782648777001352, guid: 99ab6ab52d72afd4386ce1e1a4b5cd6a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 7449782648777001352, guid: 99ab6ab52d72afd4386ce1e1a4b5cd6a,
         type: 3}
