@@ -17,12 +17,18 @@ public class RocketLaunch : MonoBehaviour
     public TechoMover techo;
     public GameObject firstButton;
 
-    public Vector3 posicionInicio = new Vector3(-0.52f, -4.516f, 0.46f); // Puedes cambiarla desde el editor
+    public Vector3 posicionInicio = new Vector3(-0.52f, -4.516f, 0.46f);
+
+    public AudioSource audioConteo;     // Sonido del conteo
+    public AudioSource audioDespegue;   // Sonido del despegue
 
     private Coroutine resetCoroutine;
 
     public void StartLaunch()
     {
+        if (audioConteo != null)
+            audioConteo.Play(); // Reproduce el audio del conteo
+
         StartCoroutine(CountdownAndPrepareLaunch());
     }
 
@@ -58,6 +64,9 @@ public class RocketLaunch : MonoBehaviour
         if (launchEffect != null)
             launchEffect.Play();
 
+        if (audioDespegue != null)
+            audioDespegue.Play();
+
         launching = true;
     }
 
@@ -65,8 +74,13 @@ public class RocketLaunch : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
 
-        if (countdownText != null)
-            countdownText.text = "";
+        if (!launching)
+        {
+            if (countdownText != null)
+                countdownText.text = "¡Vuelo cancelado!"; // Mensaje de cancelación
+
+            yield return new WaitForSeconds(2f); // Tiempo para leer el mensaje
+        }
 
         if (panelInstruccion != null)
             panelInstruccion.SetActive(false);
@@ -111,7 +125,6 @@ public class RocketLaunch : MonoBehaviour
 
     void Start()
     {
-        // Establece la posición inicial al iniciar
         transform.localPosition = posicionInicio;
     }
 
