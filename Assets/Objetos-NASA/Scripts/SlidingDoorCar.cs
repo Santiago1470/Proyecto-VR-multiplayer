@@ -61,4 +61,9 @@ public class SlidingDoorCar : MonoBehaviour
             isOpen = true;
         }
     }
+
+    public bool AreDoorsOpen()
+    {
+        return isOpen;
+    }
 }

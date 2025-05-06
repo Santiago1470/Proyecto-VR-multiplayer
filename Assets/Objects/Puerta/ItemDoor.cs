@@ -158,4 +158,10 @@ public class ItemDoor : MonoBehaviour
             }
         }
     }
+
+    public bool CanOpenDoor()
+    {
+        return canOpenDoor;
+    }
+
 }
