@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using TMPro;
 
 public class VRSheetsCollectorScript : MonoBehaviour
 {
@@ -14,12 +15,22 @@ public class VRSheetsCollectorScript : MonoBehaviour
     [SerializeField] private AudioClip successSound;
     [SerializeField] private AudioClip socketFillSound;
     [SerializeField] private ParticleSystem completionEffect;
+    [SerializeField] private TextMeshProUGUI progressText; // Referencia al TextMeshProUGUI
 
     [Header("Configuración")]
     [SerializeField] private string targetTag = "sheets";
     [SerializeField] private int requiredObjects = 10;
+    
+    [Header("Mensajes de Ánimo")]
+    [SerializeField] private List<string> encouragingMessages = new List<string>() {
+        "¡Sigue así!",
+        "¡Ya falta menos!",
+        "¡Vas por buen camino!",
+        "¡Casi lo tienes!",
+        "¡Tu puedes lograrlo!"
+    };
 
-    private int currentFilledSockets = 0;
+    private int currentFilledSockets = 1;
     private bool rewardDelivered = false;
     private AudioSource audioSource;
 
@@ -54,6 +65,9 @@ public class VRSheetsCollectorScript : MonoBehaviour
                 Debug.LogError("El socket " + i + " es nulo. Verifique las referencias en el inspector.");
             }
         }
+        
+        // Inicializar el texto de progreso
+        UpdateProgressText();
     }
 
     private void OnSocketFilled(int socketIndex, SelectEnterEventArgs args)
@@ -71,8 +85,34 @@ public class VRSheetsCollectorScript : MonoBehaviour
             
             Debug.Log("Socket " + socketIndex + " llenado. Total de sockets llenos: " + currentFilledSockets + "/" + requiredObjects);
             
+            // Mostrar mensaje de éxito por encontrar una hoja
+            if (progressText != null)
+            {
+                progressText.text = "¡Bien hecho, has puesto la hoja de la investigación!";
+                progressText.color = Color.green; // Cambiar a color verde para éxito
+                // Usar una corrutina para mostrar el mensaje de éxito brevemente
+                StartCoroutine(ShowMessageThenUpdateProgress(1.5f));
+            }
+            else
+            {
+                // Actualizar el texto de progreso directamente si no tenemos un TextMeshPro
+                UpdateProgressText();
+            }
+            
             // Verifica si todos los objetos requeridos están en su lugar
             CheckCompletion();
+        }
+        else
+        {
+            // El objeto NO tiene el tag correcto
+            if (progressText != null)
+            {
+                progressText.text = "Esa no es una hoja de investigación";
+                progressText.color = Color.red; // Cambiar a color rojo para error
+                // Mostrar mensaje de error temporalmente
+                StartCoroutine(ShowMessageThenUpdateProgress(1.5f));
+            }
+            Debug.Log("Se colocó un objeto incorrecto en el socket " + socketIndex);
         }
     }
 
@@ -83,6 +123,74 @@ public class VRSheetsCollectorScript : MonoBehaviour
         {
             currentFilledSockets--;
             Debug.Log("Socket " + socketIndex + " vaciado. Total de sockets llenos: " + currentFilledSockets + "/" + requiredObjects);
+            
+            // Actualizar el texto de progreso y restaurar el color
+            UpdateProgressText();
+            if (progressText != null)
+            {
+                progressText.color = Color.white;
+            }
+        }
+        else
+        {
+            // Cuando se quita un objeto incorrecto, restaurar el mensaje normal y el color
+            UpdateProgressText();
+            if (progressText != null)
+            {
+                progressText.color = Color.white;
+            }
+            Debug.Log("Se quitó un objeto incorrecto del socket " + socketIndex);
+        }
+    }
+
+    // Corrutina que muestra un mensaje temporal y luego actualiza el texto de progreso
+    private IEnumerator ShowMessageThenUpdateProgress(float delay)
+    {
+        // Esperar el tiempo especificado
+        yield return new WaitForSeconds(delay);
+        
+        // Actualizar el texto de progreso después del retraso y restaurar el color
+        UpdateProgressText();
+        
+        // Restaurar el color del texto a blanco (o el color predeterminado)
+        if (progressText != null)
+        {
+            progressText.color = Color.white;
+        }
+    }
+
+    private void UpdateProgressText()
+    {
+        if (progressText != null)
+        {
+            if (currentFilledSockets >= requiredObjects)
+            {
+                // Mensaje de finalización
+                progressText.text = "¡Completado!\n" + currentFilledSockets + "/" + requiredObjects + " hojas recolectadas";
+            }
+            else
+            {
+                // Calcular cuántas hojas faltan
+                int remaining = requiredObjects - currentFilledSockets;
+                string message;
+                
+                if (remaining == 1)
+                {
+                    message = "¡Solo falta 1 hoja!";
+                }
+                else if (remaining <= 3)
+                {
+                    message = "¡Ya solo faltan " + remaining + " hojas!\n¡Tu puedes!";
+                }
+                else
+                {
+                    // Obtener un mensaje aleatorio de ánimo
+                    string encouragement = encouragingMessages[Random.Range(0, encouragingMessages.Count)];
+                    message = "Hojas: " + currentFilledSockets + "/" + requiredObjects + "\n" + encouragement;
+                }
+                
+                progressText.text = message;
+            }
         }
     }
 
