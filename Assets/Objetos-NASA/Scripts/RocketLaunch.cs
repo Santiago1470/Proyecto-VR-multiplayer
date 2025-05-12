@@ -7,27 +7,33 @@ public class RocketLaunch : MonoBehaviour
     public float launchSpeed = 10f;
     private bool launching = false;
 
-    public float alturaMaxima = 20f; // Altura para reiniciar
+    public float alturaMaxima = 20f;
     private bool yaReinicio = false;
 
     public ParticleSystem launchEffect;
     public TextMeshProUGUI countdownText;
     public GameObject launchButton;
     public GameObject panelInstruccion;
+    public GameObject panelInstruccionInicial; // Renombrado
+
     public TechoMover techo;
     public GameObject firstButton;
 
     public Vector3 posicionInicio = new Vector3(-0.52f, -4.516f, 0.46f);
 
-    public AudioSource audioConteo;     // Sonido del conteo
-    public AudioSource audioDespegue;   // Sonido del despegue
+    public AudioSource audioConteo;
+    public AudioSource audioDespegue;
 
     private Coroutine resetCoroutine;
 
     public void StartLaunch()
     {
         if (audioConteo != null)
-            audioConteo.Play(); // Reproduce el audio del conteo
+            audioConteo.Play();
+
+        // Oculta el panel de instrucción inicial
+        if (panelInstruccionInicial != null)
+            panelInstruccionInicial.SetActive(false);
 
         StartCoroutine(CountdownAndPrepareLaunch());
     }
@@ -77,9 +83,9 @@ public class RocketLaunch : MonoBehaviour
         if (!launching)
         {
             if (countdownText != null)
-                countdownText.text = "¡Vuelo cancelado!"; // Mensaje de cancelación
+                countdownText.text = "¡Vuelo cancelado!";
 
-            yield return new WaitForSeconds(2f); // Tiempo para leer el mensaje
+            yield return new WaitForSeconds(2f);
         }
 
         if (panelInstruccion != null)
@@ -90,6 +96,9 @@ public class RocketLaunch : MonoBehaviour
 
         if (firstButton != null)
             firstButton.SetActive(true);
+
+        if (panelInstruccionInicial != null)
+            panelInstruccionInicial.SetActive(true); // Muestra el panel de instrucción inicial
 
         if (techo != null)
             techo.CerrarTecho();
@@ -114,6 +123,9 @@ public class RocketLaunch : MonoBehaviour
 
         if (firstButton != null)
             firstButton.SetActive(true);
+
+        if (panelInstruccionInicial != null)
+            panelInstruccionInicial.SetActive(true); // También se muestra después del lanzamiento
 
         if (techo != null)
             techo.CerrarTecho();
@@ -142,3 +154,4 @@ public class RocketLaunch : MonoBehaviour
         }
     }
 }
+
