@@ -4,6 +4,9 @@ using System.Collections;
 
 public class ChemicalTube : MonoBehaviour
 {
+    private Vector3 initialPosition;
+    private Quaternion initialRotation;
+    public UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor homeSocket;
     public enum ChemicalElement
     {
         Hydrogen,    // Color: Azul claro
@@ -39,24 +42,27 @@ public class ChemicalTube : MonoBehaviour
     }
 
     void Update()
-    {
-        if (grabInteractable.isSelected)
-        {
-            // Calculamos el ángulo entre la dirección hacia arriba del objeto y el Vector3.up (positivo siempre)
-            float angle = Vector3.Angle(transform.up, Vector3.up);
+{
+    if (!grabInteractable.isSelected) return;
 
-            // Si el ángulo está dentro del rango y no estamos ya vertiendo...
-            if (angle >= pourAngleMin && angle <= pourAngleMax && !isPouring)
-            {
-                StartPouring();
-            }
-            // Si se sale del rango y se estaba vertiendo...
-            else if ((angle < pourAngleMin || angle > pourAngleMax) && isPouring)
-            {
-                StopPouring();
-            }
-        }
+    // Calcula el ángulo firmado entre el up del objeto y el up del mundo,
+    // usando como eje de rotación el forward del objeto (inclinación izquierda/derecha)
+    float sideAngle = Vector3.SignedAngle(transform.up, Vector3.up, transform.forward);
+
+    // Si el ángulo está en el rango [min,max] a la derecha...
+    bool rightTilt = sideAngle >= pourAngleMin && sideAngle <= pourAngleMax;
+    // ...o en el rango [-max,-min] a la izquierda
+    bool leftTilt  = sideAngle <= -pourAngleMin && sideAngle >= -pourAngleMax;
+
+    if ((rightTilt || leftTilt) && !isPouring)
+    {
+        StartPouring();
     }
+    else if (!(rightTilt || leftTilt) && isPouring)
+    {
+        StopPouring();
+    }
+}
 
     void StartPouring()
     {
@@ -124,5 +130,36 @@ public class ChemicalTube : MonoBehaviour
             StopPouring();
     }
 
+    public void ResetToInitial(bool snapToSocket = true)
+{
+    // 1) Reposicionar en world space
+    transform.position = initialPosition;
+    transform.rotation = initialRotation;
 
+    // 2) Limpiar cualquier agarre activo
+    var mgr = grabInteractable.interactionManager;
+    var interactor = grabInteractable.firstInteractorSelecting;
+    if (mgr != null && interactor != null)
+        mgr.SelectExit(interactor, grabInteractable);
+
+    // 3) Reseteo de física
+    var rb = GetComponent<Rigidbody>();
+    if (rb != null)
+    {
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+
+    // 4) (Opcional) Snap al socket original
+    if (snapToSocket && homeSocket != null)
+    {
+        // Si hay algo en el socket, lo “liberamos”
+        if (homeSocket.hasSelection)
+            homeSocket.EndManualInteraction();  // ¡sin argumentos!
+
+        // Ahora iniciamos la interacción manual con nuestro tubo
+        var interactable = grabInteractable as UnityEngine.XR.Interaction.Toolkit.Interactables.IXRSelectInteractable;
+        homeSocket.StartManualInteraction(interactable);
+    }
+}
 }
