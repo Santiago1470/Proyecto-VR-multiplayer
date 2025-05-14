@@ -148910,7 +148910,7 @@ GameObject:
   - component: {fileID: 1199457827}
   - component: {fileID: 1199457826}
   - component: {fileID: 1199457829}
-  - component: {fileID: 1199457831}
+  - component: {fileID: 1199457830}
   m_Layer: 0
   m_Name: Relleno
   m_TagString: Untagged
@@ -149036,7 +149036,7 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &1199457831
+--- !u!114 &1199457830
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -149045,28 +149045,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 1199457823}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8d2b24af08b1f04db4fab3ade2718ac, type: 3}
+  m_Script: {fileID: 11500000, guid: 037dbe0714888d74995ab31774893924, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   liquidMaterial: {fileID: 2100000, guid: 370374c2bb9b3544291580c21e2f497e, type: 2}
-  emptyColor: {r: 1, g: 1, b: 1, a: 1}
-  reactionText: {fileID: 1917173099}
-  reactionNameText: {fileID: 379959480}
+  emptyColor: {r: 0.9, g: 0.9, b: 0.9, a: 0.4}
+  reactionText: {fileID: 379959480}
+  reactionNameText: {fileID: 1917173099}
   objectiveText: {fileID: 864290813}
   completedReactionsText: {fileID: 150040395}
   finalRewardPrefab: {fileID: 2009804607}
   rewardSpawnPoint: {fileID: 2077692372}
   rewardDropHeight: 5
   rewardDropForce: 0.5
-  objectiveCompounds:
-  - H2O
-  - CO2
-  - NH3
-  - CH4
-  - H2SO4
-  - Cl2
-  - C2H5OH
-  - HCl
   autoClearOnReactionComplete: 1
   deleteLastButton: {fileID: 120432742}
   clearAllButton: {fileID: 532718281}
@@ -149076,7 +149067,7 @@ MonoBehaviour:
     type: 3}
   allObjectivesCompleteSound: {fileID: 8300000, guid: ced846ce8360bac409b6d7b2207daca8,
     type: 3}
-  reactionVolume: 0.6
+  reactionVolume: 0.7
   completionVolume: 1
 --- !u!1001 &1200958048
 PrefabInstance:
@@ -263424,6 +263415,7 @@ GameObject:
   - component: {fileID: 7202271454991883605}
   - component: {fileID: 7202271454991883606}
   - component: {fileID: 7202271454991883607}
+  - component: {fileID: 7202271454991883608}
   m_Layer: 0
   m_Name: ReactionContainer
   m_TagString: Untagged
@@ -265083,6 +265075,27 @@ MonoBehaviour:
   Interpolate: 1
   SlerpPosition: 0
   isServerAuthoritative: 0
+--- !u!114 &7202271454991883608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3655000509834634634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29e0d9e0e45b9e3428d2930e1e10b5ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectiveCompounds:
+  - H2O
+  - CO2
+  - NH3
+  - CH4
+  - H2SO4
+  - Cl2
+  - C2H5OH
+  - HCl
 --- !u!23 &7365283716849897173
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+// ReactionContainer.cs - Script principal para gestionar las reacciones químicas
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,372 +10,138 @@ using TMPro;
 
 public class ReactionContainer : MonoBehaviour
 {
-    [Header("Visual Elements")]
     [SerializeField] private Material liquidMaterial;
     [SerializeField] private Color emptyColor = new Color(0.9f, 0.9f, 0.9f, 0.4f);
-
-    [Header("Reaction Display")]
-    [SerializeField] private TextMeshProUGUI reactionText;
-    [SerializeField] private TextMeshProUGUI reactionNameText;
-    [SerializeField] private TextMeshProUGUI objectiveText;
-    [SerializeField] private TextMeshProUGUI completedReactionsText;
-
-    [Header("Final Reward")]
+    [SerializeField] private TextMeshProUGUI reactionText, reactionNameText, objectiveText, completedReactionsText;
     [SerializeField] private GameObject finalRewardPrefab;
     [SerializeField] private Transform rewardSpawnPoint;
-    [SerializeField] private float rewardDropHeight = 5f;
-    [SerializeField] private float rewardDropForce = 0.5f;
-    
-    [Header("Objectives")]
-    [SerializeField] private List<string> objectiveCompounds = new List<string>() { 
-        "H2O", "CO2", "NH3", "CH4", "H2SO4", "Cl2", "C2H5OH", "HCl" 
-    };
+    [SerializeField] private float rewardDropHeight = 5f, rewardDropForce = 0.5f;
     [SerializeField] private bool autoClearOnReactionComplete = true;
-    
-    [Header("VR Controls")]
-    [SerializeField] private XRSimpleInteractable deleteLastButton;
-    [SerializeField] private XRSimpleInteractable clearAllButton;
-
-    [Header("Reaction Effects")]
+    [SerializeField] private XRSimpleInteractable deleteLastButton, clearAllButton;
     [SerializeField] private ParticleSystem reactionParticles;
-    
-    [Header("Audio Effects")]
     [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip reactionCompleteSound;
-    [SerializeField] private AudioClip allObjectivesCompleteSound;
-    [SerializeField] private float reactionVolume = 0.7f;
-    [SerializeField] private float completionVolume = 1.0f;
+    [SerializeField] private AudioClip reactionCompleteSound, allObjectivesCompleteSound;
+    [SerializeField] private float reactionVolume = 0.7f, completionVolume = 1.0f;
     
-    // Shader Property IDs
-    private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
-
+    // Componente auxiliar que maneja los datos y lógica de química
+    private ChemistryManager chemManager;
+    
     // Estado interno
     private List<ChemicalTube.ChemicalElement> elements = new List<ChemicalTube.ChemicalElement>();
     private List<string> completedReactions = new List<string>();
     private int currentObjectiveIndex = 0;
     private bool finalRewardGiven = false;
-    private bool deleteLastInteractable = false;
-    private bool clearAllInteractable = false;
-    private bool reactionProcessing = false; // Bandera para evitar procesamiento simultáneo
-
-    // Diccionarios para mapeo de elementos y compuestos
-    private readonly Dictionary<string, Color> chemicalCompounds = new Dictionary<string, Color>() {
-        {"H2O", new Color(0f, 0.6f, 1f, 0.8f)},
-        {"CO2", new Color(0.7f, 0.7f, 0.7f, 0.8f)},
-        {"NH3", new Color(0.6f, 0.8f, 0.2f, 0.8f)},
-        {"CH4", new Color(0.3f, 0.5f, 0.9f, 0.8f)},
-        {"H2SO4", new Color(1f, 0.4f, 0.1f, 0.8f)},
-        {"Cl2", new Color(0.2f, 0.9f, 0.2f, 0.8f)},
-        {"C2H5OH", new Color(0.7f, 0.3f, 0.7f, 0.8f)},
-        {"HCl", new Color(0.9f, 0.9f, 0.2f, 0.8f)}
-    };
-
-    private readonly Dictionary<string, string> compoundNames = new Dictionary<string, string>() {
-        {"H2O", "Agua"},
-        {"CO2", "Dióxido de Carbono"},
-        {"NH3", "Amoníaco"},
-        {"CH4", "Metano"},
-        {"H2SO4", "Ácido Sulfúrico"},
-        {"Cl2", "Cloro Molecular"},
-        {"C2H5OH", "Etanol"},
-        {"HCl", "Ácido Clorhídrico"}
-    };
-
-    private readonly Dictionary<ChemicalTube.ChemicalElement, Color> elementColors = new Dictionary<ChemicalTube.ChemicalElement, Color>() {
-        {ChemicalTube.ChemicalElement.Hydrogen, new Color(0.5f, 0.8f, 1f, 0.8f)},
-        {ChemicalTube.ChemicalElement.Oxygen, new Color(1f, 0.2f, 0.2f, 0.8f)},
-        {ChemicalTube.ChemicalElement.Carbon, new Color(0.2f, 0.2f, 0.2f, 0.8f)},
-        {ChemicalTube.ChemicalElement.Nitrogen, new Color(1f, 1f, 0.2f, 0.8f)},
-        {ChemicalTube.ChemicalElement.Chlorine, new Color(0.2f, 0.8f, 0.2f, 0.8f)},
-        {ChemicalTube.ChemicalElement.Sulfur, new Color(0.9f, 0.8f, 0.2f, 0.8f)}
-    };
-
-    private void Awake()
-    {
-        if (liquidMaterial == null)
-        {
-            Debug.LogWarning("Liquid material not assigned!");
-        }
-    }
+    private bool reactionProcessing = false;
 
     private void Start()
     {
-        // Inicializar líquido
-        if (liquidMaterial != null)
-        {
-            SetLiquidColor(emptyColor);
-        }
-
-        // Verificar AudioSource
+        // Inicializar el gestor de química
+        chemManager = gameObject.AddComponent<ChemistryManager>();
+        
+        // Configurar el material del líquido
+        UpdateLiquidVisual();
+        
+        // Configurar el AudioSource si es necesario
         if (audioSource == null)
         {
-            // Intentar buscar un AudioSource existente
-            audioSource = GetComponent<AudioSource>();
-            
-            // Si no hay uno, crear uno nuevo
-            if (audioSource == null)
-            {
-                audioSource = gameObject.AddComponent<AudioSource>();
-                audioSource.playOnAwake = false;
-                audioSource.spatialBlend = 1.0f; // Audio 3D
-            }
+            audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 1.0f;
         }
 
-        // Inicializar punto de spawn para recompensas
+        // Crear punto de spawn para recompensas si no existe
         if (rewardSpawnPoint == null)
         {
-            GameObject spawnPointObj = new GameObject("RewardSpawnPoint");
-            rewardSpawnPoint = spawnPointObj.transform;
-            rewardSpawnPoint.position = new Vector3(transform.position.x, transform.position.y + rewardDropHeight, transform.position.z);
+            rewardSpawnPoint = new GameObject("RewardSpawnPoint").transform;
+            rewardSpawnPoint.position = transform.position + Vector3.up * rewardDropHeight;
         }
         
         // Configurar botones VR
         if (deleteLastButton != null)
-        {
-            deleteLastButton.selectEntered.AddListener(DeleteLastButtonPressed);
-        }
+            deleteLastButton.selectEntered.AddListener((_) => { if (elements.Count > 0 && !reactionProcessing) RemoveLastElement(); });
+        
         if (clearAllButton != null)
-        {
-            clearAllButton.selectEntered.AddListener(ClearAllButtonPressed);
-        }
+            clearAllButton.selectEntered.AddListener((_) => { if (elements.Count > 0 && !reactionProcessing) ClearAllElements(); });
         
         UpdateUI();
-    }
-
-    private void DeleteLastButtonPressed(SelectEnterEventArgs args)
-    {
-        if (deleteLastInteractable && !reactionProcessing)
-        {
-            RemoveLastElement();
-        }
-    }
-
-    private void ClearAllButtonPressed(SelectEnterEventArgs args)
-    {
-        if (clearAllInteractable && !reactionProcessing)
-        {
-            ClearAllElements();
-        }
     }
     
     public void RegisterPour(ChemicalTube.ChemicalElement element)
     {
-        if (reactionProcessing)
-            return;
-            
+        if (reactionProcessing) return;
+        
         elements.Add(element);
         UpdateLiquidVisual();
         UpdateFormula();
-        UpdateButtonStates();
         
         // Verificar si se ha formado un compuesto conocido
-        CheckForCompletedReactionAfterPour();
+        string formula = chemManager.GetFormulaFromElements(elements);
+        if (chemManager.IsKnownCompound(formula) && !completedReactions.Contains(formula))
+            StartCoroutine(ProcessCompletedReaction(formula));
     }
 
     public void RemoveLastElement()
     {
-        if (elements.Count > 0 && !reactionProcessing)
-        {
-            elements.RemoveAt(elements.Count - 1);
-            UpdateLiquidVisual();
-            UpdateFormula();
-            UpdateButtonStates();
-        }
+        if (elements.Count == 0 || reactionProcessing) return;
+        
+        elements.RemoveAt(elements.Count - 1);
+        UpdateLiquidVisual();
+        UpdateFormula();
     }
 
     public void ClearAllElements()
     {
-        if (!reactionProcessing)
-        {
-            elements.Clear();
-            UpdateLiquidVisual();
-            UpdateFormula();
-            UpdateButtonStates();
-        }
+        if (reactionProcessing) return;
+        
+        elements.Clear();
+        UpdateLiquidVisual();
+        UpdateFormula();
     }
     
     private void UpdateLiquidVisual()
     {
         if (liquidMaterial == null) return;
         
-        // Actualizar color según fórmula
-        string formula = GetCurrentFormula();
-        Color newColor = GetColorForFormula(formula);
-        SetLiquidColor(newColor);
-    }
-
-    private Color GetColorForFormula(string formula)
-    {
-        if (chemicalCompounds.ContainsKey(formula))
-        {
-            return chemicalCompounds[formula];
-        }
-        else if (elements.Count > 0)
-        {
-            return elementColors[elements.Last()];
-        }
-        else
-        {
-            return emptyColor;
-        }
-    }
-
-    private void SetLiquidColor(Color color)
-    {
-        if (liquidMaterial == null) return;
+        string formula = chemManager.GetFormulaFromElements(elements);
+        Color color = chemManager.GetColorForFormula(formula, elements, emptyColor);
         
         // Asegurar transparencia adecuada
-        if (color.a > 0.95f)
-            color.a = 0.8f;
-            
-        liquidMaterial.SetColor(BaseColorId, color);
+        if (color.a > 0.95f) color.a = 0.8f;
+        
         liquidMaterial.SetColor("_BaseColor", color);
         liquidMaterial.SetColor("_Color", color);
     }
     
-    private string GetCurrentFormula()
+    private void UpdateFormula()
     {
-        Dictionary<ChemicalTube.ChemicalElement, int> elementCounts = CountElements();
-
-        // Compuestos conocidos
-        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Hydrogen, 2, ChemicalTube.ChemicalElement.Oxygen, 1))
-            return "H2O";
+        string formula = chemManager.GetFormulaFromElements(elements);
         
-        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Carbon, 1, ChemicalTube.ChemicalElement.Oxygen, 2))
-            return "CO2";
+        // Actualizar texto de fórmula
+        if (reactionText != null)
+            reactionText.text = chemManager.FormatFormulaWithSubscripts(formula);
         
-        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Nitrogen, 1, ChemicalTube.ChemicalElement.Hydrogen, 3))
-            return "NH3";
-        
-        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Carbon, 1, ChemicalTube.ChemicalElement.Hydrogen, 4))
-            return "CH4";
-        
-        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Hydrogen, 2, ChemicalTube.ChemicalElement.Sulfur, 1, ChemicalTube.ChemicalElement.Oxygen, 4))
-            return "H2SO4";
-        
-        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Chlorine, 2))
-            return "Cl2";
-        
-        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Carbon, 2, ChemicalTube.ChemicalElement.Hydrogen, 6, ChemicalTube.ChemicalElement.Oxygen, 1))
-            return "C2H5OH";
-        
-        if (IsCompound(elementCounts, ChemicalTube.ChemicalElement.Hydrogen, 1, ChemicalTube.ChemicalElement.Chlorine, 1))
-            return "HCl";
-        
-        // Construir fórmula genérica si no coincide con compuestos conocidos
-        return BuildGenericFormula(elementCounts);
-    }
-
-    private Dictionary<ChemicalTube.ChemicalElement, int> CountElements()
-    {
-        var elementCounts = new Dictionary<ChemicalTube.ChemicalElement, int>();
-        
-        foreach (var element in elements)
-        {
-            if (elementCounts.ContainsKey(element))
-                elementCounts[element]++;
-            else
-                elementCounts[element] = 1;
-        }
-        
-        return elementCounts;
-    }
-
-    private bool IsCompound(Dictionary<ChemicalTube.ChemicalElement, int> containerElements, params object[] requiredElements)
-    {
-        // Fix for ethanol (C2H5OH)
-        if (requiredElements.Length == 6 && 
-            (ChemicalTube.ChemicalElement)requiredElements[0] == ChemicalTube.ChemicalElement.Carbon &&
-            (int)requiredElements[1] == 2 &&
-            (ChemicalTube.ChemicalElement)requiredElements[2] == ChemicalTube.ChemicalElement.Hydrogen &&
-            (int)requiredElements[3] == 6 &&
-            (ChemicalTube.ChemicalElement)requiredElements[4] == ChemicalTube.ChemicalElement.Oxygen &&
-            (int)requiredElements[5] == 1)
-        {
-            // Verificación directa para etanol (C2H6O)
-            return containerElements.ContainsKey(ChemicalTube.ChemicalElement.Carbon) && containerElements[ChemicalTube.ChemicalElement.Carbon] == 2 &&
-                   containerElements.ContainsKey(ChemicalTube.ChemicalElement.Hydrogen) && containerElements[ChemicalTube.ChemicalElement.Hydrogen] == 6 &&
-                   containerElements.ContainsKey(ChemicalTube.ChemicalElement.Oxygen) && containerElements[ChemicalTube.ChemicalElement.Oxygen] == 1;
-        }
-        
-        // Regular check for other compounds
-        Dictionary<ChemicalTube.ChemicalElement, int> requiredCounts = new Dictionary<ChemicalTube.ChemicalElement, int>();
-        
-        for (int i = 0; i < requiredElements.Length; i += 2)
-        {
-            ChemicalTube.ChemicalElement element = (ChemicalTube.ChemicalElement)requiredElements[i];
-            int count = (int)requiredElements[i + 1];
-            
-            if (requiredCounts.ContainsKey(element))
-                requiredCounts[element] += count;
-            else
-                requiredCounts[element] = count;
-        }
-        
-        if (containerElements.Count != requiredCounts.Count)
-            return false;
-            
-        foreach (var kvp in requiredCounts)
-        {
-            if (!containerElements.ContainsKey(kvp.Key) || containerElements[kvp.Key] != kvp.Value)
-                return false;
-        }
-        
-        return true;
-    }
-
-    private string BuildGenericFormula(Dictionary<ChemicalTube.ChemicalElement, int> elementCounts)
-    {
-        string formula = "";
-        
-        foreach (var element in elementCounts.Keys.OrderBy(GetElementPriority))
-        {
-            formula += GetElementSymbol(element);
-            if (elementCounts[element] > 1)
-                formula += elementCounts[element].ToString();
-        }
-        
-        return formula;
-    }
-
-    private int GetElementPriority(ChemicalTube.ChemicalElement element)
-    {
-        switch (element)
-        {
-            case ChemicalTube.ChemicalElement.Carbon: return 0;
-            case ChemicalTube.ChemicalElement.Hydrogen: return 1;
-            case ChemicalTube.ChemicalElement.Oxygen: return 2;
-            case ChemicalTube.ChemicalElement.Nitrogen: return 3;
-            case ChemicalTube.ChemicalElement.Sulfur: return 4;
-            case ChemicalTube.ChemicalElement.Chlorine: return 5;
-            default: return 99;
-        }
-    }
-
-    private string GetElementSymbol(ChemicalTube.ChemicalElement element)
-    {
-        switch (element)
-        {
-            case ChemicalTube.ChemicalElement.Hydrogen: return "H";
-            case ChemicalTube.ChemicalElement.Oxygen: return "O";
-            case ChemicalTube.ChemicalElement.Carbon: return "C";
-            case ChemicalTube.ChemicalElement.Nitrogen: return "N";
-            case ChemicalTube.ChemicalElement.Chlorine: return "Cl";
-            case ChemicalTube.ChemicalElement.Sulfur: return "S";
-            default: return "?";
-        }
+        // Actualizar nombre de reacción
+        UpdateReactionName(formula);
     }
     
-    private void CheckForCompletedReactionAfterPour()
+    private void UpdateReactionName(string formula)
     {
-        if (reactionProcessing)
-            return;
-            
-        string formula = GetCurrentFormula();
+        if (reactionNameText == null) return;
         
-        if (chemicalCompounds.ContainsKey(formula) && !completedReactions.Contains(formula))
+        if (chemManager.IsKnownCompound(formula))
         {
-            StartCoroutine(ProcessCompletedReaction(formula));
+            reactionNameText.text = chemManager.GetCompoundName(formula);
+            reactionNameText.color = Color.white;
+        }
+        else if (elements.Count > 0)
+        {
+            reactionNameText.text = "Mezclando...";
+            reactionNameText.color = new Color(0.8f, 0.8f, 0.2f);
+        }
+        else
+        {
+            reactionNameText.text = "Contenedor vacío";
+            reactionNameText.color = Color.gray;
         }
     }
     
@@ -383,65 +150,47 @@ public class ReactionContainer : MonoBehaviour
         reactionProcessing = true;
         
         // Verificar si es el objetivo actual
-        if (formula == objectiveCompounds[currentObjectiveIndex])
-        {
-            yield return StartCoroutine(CelebrateReaction(formula));
-        }
-        else if (objectiveCompounds.Contains(formula))
-        {
-            // Es un objetivo válido pero no el actual
-            AddCompletedReaction(formula, true);
-        }
+        if (formula == chemManager.objectiveCompounds[currentObjectiveIndex])
+            yield return CelebrateReaction(formula);
+        else if (chemManager.objectiveCompounds.Contains(formula))
+            AddCompletedReaction(formula);
         else
-        {
-            // Es un compuesto válido pero no un objetivo
-            AddCompletedReaction(formula, false);
-        }
+            AddCompletedReaction(formula);
         
         // Verificar si se han completado todos los objetivos
         bool allCompleted = CheckAllObjectivesCompleted();
         
         if (allCompleted && !finalRewardGiven)
         {
-            yield return StartCoroutine(ShowCompletionMessage());
+            yield return ShowCompletionMessage();
             SpawnFinalReward();
             finalRewardGiven = true;
         }
         
-        // Esperar antes de vaciar el contenedor
         yield return new WaitForSeconds(1.0f);
         
-        // Vaciar automáticamente los elementos si está habilitado
         if (autoClearOnReactionComplete)
         {
             elements.Clear();
             UpdateLiquidVisual();
             UpdateFormula();
-            UpdateButtonStates();
         }
         
-        // Avanzar al siguiente objetivo no completado si está disponible
         if (!allCompleted)
-        {
             UpdateNextObjective();
-        }
         
         reactionProcessing = false;
     }
 
     private IEnumerator CelebrateReaction(string formula)
     {
-        // Iniciar efectos visuales
         if (reactionParticles != null)
         {
             reactionParticles.Clear();
             reactionParticles.Play();
-            
-            // Detener después de la duración especificada
             StartCoroutine(StopParticlesAfterDelay(2.0f));
         }
         
-        // Reproducir sonido de reacción completada
         if (audioSource != null && reactionCompleteSound != null)
         {
             audioSource.volume = reactionVolume;
@@ -450,7 +199,7 @@ public class ReactionContainer : MonoBehaviour
         
         if (reactionNameText != null)
         {
-            reactionNameText.text = $"¡{compoundNames[formula]} completado!";
+            reactionNameText.text = $"¡{chemManager.GetCompoundName(formula)} completado!";
             reactionNameText.color = Color.green;
             
             float duration = 2.0f;
@@ -467,24 +216,20 @@ public class ReactionContainer : MonoBehaviour
             reactionNameText.color = Color.white;
         }
         
-        // Registrar como completado
-        AddCompletedReaction(formula, true);
+        AddCompletedReaction(formula);
     }
 
     private IEnumerator StopParticlesAfterDelay(float duration)
     {
         yield return new WaitForSeconds(duration);
         if (reactionParticles != null && reactionParticles.isPlaying)
-        {
             reactionParticles.Stop();
-        }
     }
 
     private IEnumerator ShowCompletionMessage()
     {
         yield return new WaitForSeconds(1.5f);
         
-        // Reproducir sonido de todos los objetivos completados
         if (audioSource != null && allObjectivesCompleteSound != null)
         {
             audioSource.volume = completionVolume;
@@ -494,7 +239,7 @@ public class ReactionContainer : MonoBehaviour
         if (reactionNameText != null)
         {
             reactionNameText.text = "¡TODOS LOS OBJETIVOS COMPLETADOS!";
-            reactionNameText.color = new Color(1f, 0.84f, 0f); // Color dorado
+            reactionNameText.color = new Color(1f, 0.84f, 0f);
         }
         
         if (objectiveText != null)
@@ -502,11 +247,9 @@ public class ReactionContainer : MonoBehaviour
             objectiveText.text = "<b>¡Todos los objetivos completados!</b>";
             objectiveText.color = Color.green;
         }
-        
-        yield return new WaitForSeconds(1.0f);
     }
 
-    private void AddCompletedReaction(string formula, bool isObjective)
+    private void AddCompletedReaction(string formula)
     {
         if (!completedReactions.Contains(formula))
         {
@@ -518,99 +261,27 @@ public class ReactionContainer : MonoBehaviour
 
     private bool CheckAllObjectivesCompleted()
     {
-        foreach (string objective in objectiveCompounds)
-        {
-            if (!completedReactions.Contains(objective))
-            {
-                return false;
-            }
-        }
-        return true;
+        return chemManager.objectiveCompounds.All(obj => completedReactions.Contains(obj));
     }
 
     private void UpdateNextObjective()
     {
-        // Buscar el siguiente objetivo no completado
-        int nextObjectiveIndex = -1;
-        
-        for (int i = 0; i < objectiveCompounds.Count; i++)
+        for (int i = 0; i < chemManager.objectiveCompounds.Count; i++)
         {
-            if (!completedReactions.Contains(objectiveCompounds[i]))
+            if (!completedReactions.Contains(chemManager.objectiveCompounds[i]))
             {
-                nextObjectiveIndex = i;
+                currentObjectiveIndex = i;
+                UpdateObjectiveText();
                 break;
             }
-        }
-        
-        if (nextObjectiveIndex != -1)
-        {
-            currentObjectiveIndex = nextObjectiveIndex;
-            UpdateObjectiveText();
         }
     }
     
     private void UpdateUI()
     {
         UpdateFormula();
-        UpdateButtonStates();
         UpdateObjectiveText();
         UpdateCompletedReactionsText();
-    }
-    
-    private void UpdateFormula()
-    {
-        string formula = GetCurrentFormula();
-        
-        // Actualizar texto de fórmula
-        if (reactionText != null)
-        {
-            reactionText.text = FormatFormulaWithSubscripts(formula);
-        }
-        
-        // Actualizar nombre de reacción
-        UpdateReactionName(formula);
-    }
-
-    private void UpdateReactionName(string formula)
-    {
-        if (reactionNameText == null) return;
-        
-        if (compoundNames.ContainsKey(formula))
-        {
-            reactionNameText.text = compoundNames[formula];
-            reactionNameText.color = Color.white;
-        }
-        else if (elements.Count > 0)
-        {
-            reactionNameText.text = "Mezclando...";
-            reactionNameText.color = new Color(0.8f, 0.8f, 0.2f);
-        }
-        else
-        {
-            reactionNameText.text = "Contenedor vacío";
-            reactionNameText.color = Color.gray;
-        }
-    }
-
-    private string FormatFormulaWithSubscripts(string formula)
-    {
-        string result = "";
-        
-        for (int i = 0; i < formula.Length; i++)
-        {
-            if (i < formula.Length - 1 && char.IsDigit(formula[i+1]))
-            {
-                result += formula[i];
-                result += "<sub>" + formula[i+1] + "</sub>";
-                i++; // Saltar el número ya procesado
-            }
-            else
-            {
-                result += formula[i];
-            }
-        }
-        
-        return result;
     }
 
     private void UpdateCompletedReactionsText()
@@ -622,17 +293,11 @@ public class ReactionContainer : MonoBehaviour
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.AppendLine("<b>Reacciones completadas:</b>");
             
-            // Primero objetivos completados
-            foreach (string formula in completedReactions.Where(f => objectiveCompounds.Contains(f)))
-            {
-                sb.AppendLine($"<color=#00FF00>✓ {compoundNames[formula]}</color>");
-            }
+            foreach (string formula in completedReactions.Where(f => chemManager.objectiveCompounds.Contains(f)))
+                sb.AppendLine($"<color=#00FF00>✓ {chemManager.GetCompoundName(formula)}</color>");
             
-            // Luego otras reacciones válidas
-            foreach (string formula in completedReactions.Where(f => !objectiveCompounds.Contains(f)))
-            {
-                sb.AppendLine($"✔{compoundNames[formula]}");
-            }
+            foreach (string formula in completedReactions.Where(f => !chemManager.objectiveCompounds.Contains(f)))
+                sb.AppendLine($"✔{chemManager.GetCompoundName(formula)}");
             
             completedReactionsText.text = sb.ToString();
         }
@@ -644,75 +309,35 @@ public class ReactionContainer : MonoBehaviour
 
     private void UpdateObjectiveText()
     {
-        if (objectiveText == null || objectiveCompounds.Count == 0) return;
+        if (objectiveText == null || chemManager.objectiveCompounds.Count == 0) return;
         
         bool allCompleted = CheckAllObjectivesCompleted();
         
-        if (allCompleted)
-        {
-            objectiveText.text = "<b>¡Todos los objetivos completados!</b>";
-            objectiveText.color = Color.green;
-        }
-        else
-        {
-            // Mostrar el objetivo actual
-            string currentObjective = objectiveCompounds[currentObjectiveIndex];
-            objectiveText.text = $"<b>Objetivo:</b> Crear {compoundNames[currentObjective]}";
-            objectiveText.color = Color.white;
-        }
-    }
-
-    private void UpdateButtonStates()
-    {
-        deleteLastInteractable = (elements.Count > 0);
-        clearAllInteractable = (elements.Count > 0);
+        objectiveText.text = allCompleted 
+            ? "<b>¡Todos los objetivos completados!</b>" 
+            : $"<b>Objetivo:</b> Crear {chemManager.GetCompoundName(chemManager.objectiveCompounds[currentObjectiveIndex])}";
+        
+        objectiveText.color = allCompleted ? Color.green : Color.white;
     }
     
     private void SpawnFinalReward()
     {
-        if (finalRewardPrefab == null)
-        {
-            Debug.LogWarning("Final reward prefab not assigned!");
-            return;
-        }
+        if (finalRewardPrefab == null) return;
 
-        // Posición de spawn
-        Vector3 spawnPosition = rewardSpawnPoint != null ? 
-            rewardSpawnPoint.position : 
-            new Vector3(transform.position.x, transform.position.y + rewardDropHeight, transform.position.z);
+        Vector3 spawnPosition = rewardSpawnPoint != null 
+            ? rewardSpawnPoint.position 
+            : transform.position + Vector3.up * rewardDropHeight;
 
-        // Instanciar recompensa
         GameObject reward = Instantiate(finalRewardPrefab, spawnPosition, Random.rotation);
+        Rigidbody rb = reward.GetComponent<Rigidbody>() ?? reward.AddComponent<Rigidbody>();
         
-        if (reward == null)
-        {
-            Debug.LogWarning("Failed to instantiate reward!");
-            return;
-        }
-        
-        // Configurar físicas
-        Rigidbody rb = reward.GetComponent<Rigidbody>();
-        if (rb == null)
-        {
-            rb = reward.AddComponent<Rigidbody>();
-        }
-        
-        // Configurar para caída lenta
         rb.linearDamping = 3.0f;
         rb.angularDamping = 2.0f;
         
-        // Fuerza para caída lenta
-        rb.AddForce(new Vector3(
-            Random.Range(-0.1f, 0.1f), 
-            -rewardDropForce, 
-            Random.Range(-0.1f, 0.1f)
-        ), ForceMode.Impulse);
+        rb.AddForce(new Vector3(Random.Range(-0.1f, 0.1f), -rewardDropForce, Random.Range(-0.1f, 0.1f)), 
+                    ForceMode.Impulse);
         
-        // Torque para rotación suave
-        rb.AddTorque(new Vector3(
-            Random.Range(-0.2f, 0.2f),
-            Random.Range(-0.2f, 0.2f),
-            Random.Range(-0.2f, 0.2f)
-        ), ForceMode.Impulse);
+        rb.AddTorque(new Vector3(Random.Range(-0.2f, 0.2f), Random.Range(-0.2f, 0.2f), Random.Range(-0.2f, 0.2f)), 
+                     ForceMode.Impulse);
     }
 }
