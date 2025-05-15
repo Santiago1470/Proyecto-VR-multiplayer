@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -41,7 +40,7 @@ public class ItemDoor : MonoBehaviour
         // Si no hay sockets configurados, permitir apertura por defecto
         if (keyItemSockets == null || keyItemSockets.Length == 0)
         {
-            canOpenDoor = true;
+            UpdateDoorState(true);
             return;
         }
 
@@ -71,18 +70,25 @@ public class ItemDoor : MonoBehaviour
             }
         }
         
+        // Actualizar el estado de la puerta basado en la presencia de todos los objetos clave
+        UpdateDoorState(allSocketsHaveItems);
+    }
+
+    private void UpdateDoorState(bool shouldBeOpen)
+    {
         // Actualizar el estado
-        bool previousState = canOpenDoor;
-        canOpenDoor = allSocketsHaveItems;
+        canOpenDoor = shouldBeOpen;
         
-        // Si el estado cambió
-        if (previousState != canOpenDoor)
+        // Abrir o cerrar la puerta según el estado
+        if (canOpenDoor && !isOpen)
         {
-            if (!canOpenDoor && isOpen)
-            {
-                // Si ya no se puede mantener la puerta abierta, cerrarla
-                CloseDoorsImmediate();
-            }
+            // Abrir las puertas
+            OpenDoors();
+        }
+        else if (!canOpenDoor && isOpen)
+        {
+            // Cerrar las puertas
+            CloseDoors();
         }
     }
 
@@ -102,7 +108,15 @@ public class ItemDoor : MonoBehaviour
         return false;
     }
 
-    private void CloseDoorsImmediate()
+    private void OpenDoors()
+    {
+        StopAllCoroutines();
+        StartCoroutine(MoveDoor(leftDoor, leftOpenPosition));
+        StartCoroutine(MoveDoor(rightDoor, rightOpenPosition));
+        isOpen = true;
+    }
+
+    private void CloseDoors()
     {
         StopAllCoroutines();
         StartCoroutine(MoveDoor(leftDoor, leftClosedPosition));
@@ -110,30 +124,7 @@ public class ItemDoor : MonoBehaviour
         isOpen = false;
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        // Solo abrir si el jugador se acerca Y se pueden abrir las puertas
-        if (other.CompareTag("Player") && !isOpen && canOpenDoor)
-        {
-            StopAllCoroutines();
-            StartCoroutine(MoveDoor(leftDoor, leftOpenPosition));
-            StartCoroutine(MoveDoor(rightDoor, rightOpenPosition));
-            isOpen = true;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player") && isOpen)
-        {
-            StopAllCoroutines();
-            StartCoroutine(MoveDoor(leftDoor, leftClosedPosition));
-            StartCoroutine(MoveDoor(rightDoor, rightClosedPosition));
-            isOpen = false;
-        }
-    }
-
-    private IEnumerator MoveDoor(Transform door, Vector3 targetPosition)
+    private System.Collections.IEnumerator MoveDoor(Transform door, Vector3 targetPosition)
     {
         while (Vector3.Distance(door.localPosition, targetPosition) > 0.01f)
         {
@@ -164,4 +155,8 @@ public class ItemDoor : MonoBehaviour
         return canOpenDoor;
     }
 
+    public bool IsOpen()
+    {
+        return isOpen;
+    }
 }
