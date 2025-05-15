@@ -150036,37 +150036,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 631449674}
   m_LocalEulerAnglesHint: {x: 135, y: 0, z: 0}
---- !u!1 &1218493444
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1218493445}
-  m_Layer: 0
-  m_Name: Manager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1218493445
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1218493444}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1396593564}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1219318093
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167487,7 +167456,6 @@ Transform:
   - {fileID: 1673466340}
   - {fileID: 1584547459}
   - {fileID: 1541704022}
-  - {fileID: 1218493445}
   m_Father: {fileID: 248840040}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1396593565
@@ -167502,7 +167470,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1db90bd006301d48b33c57f1a1ef27a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  statusText: {fileID: 0}
+  ShowTopMostFoldoutHeaderGroup: 1
+  statusText: {fileID: 576565299}
   textFormat: 'Pedido actual:
 
     <color=#C87B30>Tazas: {0}/{1}</color>
@@ -167521,6 +167490,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bacc39385ccb94b4ba16a71a4676a2f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   orderItems:
   - itemName: "Caf\xE9"
     socket: {fileID: 390877156}
@@ -167556,8 +167526,6 @@ MonoBehaviour:
     itemType: 1
   totalCups: 5
   totalDonuts: 3
-  completedCups: 0
-  completedDonuts: 0
   coffeeTag: Coffee
   requiredFillLevel: 0.3
   itemPlacedSound: {fileID: 8300000, guid: 09af27f2a47741b4f9fb4ee5f370ccf0, type: 3}
