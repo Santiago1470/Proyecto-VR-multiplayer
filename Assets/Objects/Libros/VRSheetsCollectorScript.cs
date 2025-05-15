@@ -25,7 +25,7 @@ public class VRSheetsCollectorNetwork : NetworkBehaviour
     private NetworkVariable<int> currentFilledSockets = new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<int> requiredObjects = new(SheetsPerPlayer, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    private AudioSource audioSource;
+    public AudioSource audioSource;
     private bool rewardDelivered = false;
 
     public override void OnNetworkSpawn()
