@@ -1,6 +1,7 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
-using Unity.Netcode;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class OrderCompletionSystem : NetworkBehaviour
 {
@@ -19,18 +20,10 @@ public class OrderCompletionSystem : NetworkBehaviour
     public OrderItem[] orderItems;
 
     [Header("Contadores")]
-    public int totalCups = 5;
-    public int totalDonuts = 3;
-    
-    // Variables sincronizadas en red
-    private NetworkVariable<int> _completedCups = new NetworkVariable<int>(0, 
-        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    private NetworkVariable<int> _completedDonuts = new NetworkVariable<int>(0, 
-        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    
-    // Propiedades para acceder a los valores sincronizados
-    public int completedCups => _completedCups.Value;
-    public int completedDonuts => _completedDonuts.Value;
+    public NetworkVariable<int> totalCups = new(5);
+    public NetworkVariable<int> totalDonuts = new(3);
+    public NetworkVariable<int> completedCups = new(0);
+    public NetworkVariable<int> completedDonuts = new(0);
 
     [Header("Verificación de Tazas")]
     [Tooltip("Tag del objeto que representa el líquido en la taza")]
@@ -46,27 +39,7 @@ public class OrderCompletionSystem : NetworkBehaviour
     [Header("Eventos")]
     public UnityEvent onOrderCompleted;
 
-    private NetworkVariable<bool> _isOrderCompleted = new NetworkVariable<bool>(false,
-        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    
-    // Cache para evitar llamadas RPC innecesarias
-    private bool wasOrderCompleted = false;
-
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-
-        // Suscribirse a cambios en las variables de red
-        _isOrderCompleted.OnValueChanged += OnOrderCompletedChanged;
-        
-        if (IsServer)
-        {
-            // Inicializar contadores solo en el servidor
-            _completedCups.Value = 0;
-            _completedDonuts.Value = 0;
-            _isOrderCompleted.Value = false;
-        }
-    }
+    public NetworkVariable<bool> isOrderCompleted = new(false);
 
     private void Start()
     {
@@ -78,14 +51,21 @@ public class OrderCompletionSystem : NetworkBehaviour
         }
 
         // Registrar eventos para cada socket
-        foreach (var item in orderItems)
+        if (IsServer)
         {
-            if (item.socket != null)
+            foreach (var item in orderItems)
             {
-                item.socket.selectEntered.AddListener((args) => OnItemPlaced(item, args.interactableObject));
-                Debug.Log($"Registrado listener para socket: {item.itemName}");
+                if (item.socket != null)
+                {
+                    item.socket.selectEntered.AddListener((args) => OnItemPlaced(item, args.interactableObject));
+                }
             }
         }
+        
+        // Inicializar contadores
+        completedCups.Value = 0;
+        completedDonuts.Value = 0;
+        isOrderCompleted.Value = false;
     }
 
     private void OnDestroy()
@@ -98,190 +78,96 @@ public class OrderCompletionSystem : NetworkBehaviour
                 item.socket.selectEntered.RemoveAllListeners();
             }
         }
-        
-        // Desuscribirse de eventos de red
-        if (_isOrderCompleted != null)
-        {
-            _isOrderCompleted.OnValueChanged -= OnOrderCompletedChanged;
-        }
     }
 
     private void OnItemPlaced(OrderItem item, UnityEngine.XR.Interaction.Toolkit.Interactables.IXRSelectInteractable interactable)
     {
-        if (item.isCompleted || _isOrderCompleted.Value)
-            return;
+        if (!IsServer || item.isCompleted || isOrderCompleted.Value) return;
 
         GameObject placedObject = interactable.transform.gameObject;
-        Debug.Log($"Objeto colocado en socket {item.itemName}: {placedObject.name}");
 
-        // Solicitar al servidor que verifique el item
-        if (IsLocalPlayer || IsServer)
+        // Verificar si es una taza
+        if (item.itemType == 0)
         {
-            ulong clientId = NetworkManager.Singleton.LocalClientId;
-            CheckItemServerRpc(item.itemType, placedObject.name, clientId);
-        }
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void CheckItemServerRpc(int itemType, string objectName, ulong clientId)
-    {
-        // Aquí verificamos el objeto en el servidor
-        Debug.Log($"[Servidor] Verificando item tipo {itemType} por el cliente {clientId}");
-        
-        // Procesamos la información que llegó del cliente
-        OrderItem relevantItem = FindNextUncompletedItem(itemType);
-        
-        if (relevantItem == null)
-        {
-            Debug.Log($"[Servidor] No hay más items de tipo {itemType} para completar");
-            return;
-        }
-        
-        // Verificamos si el ítem se puede completar
-        bool isValid = false;
-        
-        // Para tazas, necesitamos una validación adicional
-        if (itemType == 0) // Taza
-        {
-            isValid = true; // En una implementación real, verificaríamos el nivel del café
-            
-            // Actualizamos en red los contadores
-            if (isValid && _completedCups.Value < totalCups)
+            // Buscar el objeto de café por tag dentro de la taza
+            Transform[] allChildren = placedObject.GetComponentsInChildren<Transform>();
+            foreach (Transform child in allChildren)
             {
-                _completedCups.Value++;
-                relevantItem.isCompleted = true;
-                
-                // Notificamos a todos los clientes
-                ItemCompletedClientRpc(itemType, _completedCups.Value);
-                Debug.Log($"[Servidor] Taza completada. Total: {_completedCups.Value}/{totalCups}");
+                if (child.CompareTag(coffeeTag))
+                {
+                    // Verificar si el café está lleno (escala Y >= requiredFillLevel)
+                    if (child.localScale.y >= requiredFillLevel)
+                    {
+                        CompleteItem(item, 0);
+                        break;
+                    }
+                }
             }
         }
-        // Para donuts, la validación es más simple
-        else if (itemType == 1) // Donut
+        // Verificar si es un donut
+        else if (item.itemType == 1)
         {
-            isValid = true;
-            
-            if (isValid && _completedDonuts.Value < totalDonuts)
-            {
-                _completedDonuts.Value++;
-                relevantItem.isCompleted = true;
-                
-                // Notificamos a todos los clientes
-                ItemCompletedClientRpc(itemType, _completedDonuts.Value);
-                Debug.Log($"[Servidor] Donut completado. Total: {_completedDonuts.Value}/{totalDonuts}");
-            }
+            CompleteItem(item, 1); // Completar como donut
         }
-        
-        // Verificar si el pedido está completo
+
         CheckOrderCompletion();
     }
 
-    // Encuentra el próximo item de un tipo específico que no esté completado
-    private OrderItem FindNextUncompletedItem(int itemType)
+    private void CompleteItem(OrderItem item, int type)
     {
-        foreach (var item in orderItems)
+        if (!IsServer) return;
+
+        item.isCompleted = true;
+
+        if (type == 0)
         {
-            if (item.itemType == itemType && !item.isCompleted)
-            {
-                return item;
-            }
+            completedCups.Value++;
+            PlaySoundClientRpc("itemPlaced"); // Envía un string identificador
         }
-        return null;
+        else if (type == 1)
+        {
+            completedDonuts.Value++;
+            PlaySoundClientRpc("itemPlaced");
+        }
     }
 
     [ClientRpc]
-    private void ItemCompletedClientRpc(int itemType, int newCount)
+    private void PlaySoundClientRpc(string soundType)
     {
-        // Reproducir sonido de item colocado en todos los clientes
-        if (itemPlacedSound != null && audioSource != null)
+        switch (soundType)
         {
-            audioSource.PlayOneShot(itemPlacedSound);
-        }
-        
-        Debug.Log($"[Cliente] Item tipo {itemType} completado. Nuevo conteo: {newCount}");
-    }
-
-    private void CheckOrderCompletion()
-    {
-        if (!IsServer || _isOrderCompleted.Value)
-            return;
-
-        // Solo el servidor verifica y actualiza el estado de completado
-        if (_completedCups.Value >= totalCups && _completedDonuts.Value >= totalDonuts)
-        {
-            _isOrderCompleted.Value = true;
-            Debug.Log("[Servidor] ¡Pedido completo! Notificando a los clientes.");
-        }
-    }
-    
-    private void OnOrderCompletedChanged(bool previousValue, bool newValue)
-    {
-        if (newValue && !wasOrderCompleted)
-        {
-            wasOrderCompleted = true;
-            
-            Debug.Log("¡Pedido completo! Todas las tazas y donuts han sido entregados correctamente.");
-            
-            // Reproducir sonido de pedido completado
-            if (orderCompletedSound != null && audioSource != null)
-            {
-                audioSource.PlayOneShot(orderCompletedSound);
-            }
-            
-            // Invocar evento de pedido completado
-            onOrderCompleted?.Invoke();
+            case "itemPlaced":
+                if (itemPlacedSound != null) audioSource.PlayOneShot(itemPlacedSound);
+                break;
+            case "orderCompleted":
+                if (orderCompletedSound != null) audioSource.PlayOneShot(orderCompletedSound);
+                break;
         }
     }
 
-    // Método público para resetear el sistema (solo el servidor debería llamar a esto)
-    [ServerRpc(RequireOwnership = false)]
-    public void ResetOrderSystemServerRpc(ulong clientId)
-    {
-        // Verificar si el cliente tiene permiso para resetear (podríamos implementar roles)
-        Debug.Log($"[Servidor] Reseteando sistema por petición del cliente {clientId}");
-        
-        _completedCups.Value = 0;
-        _completedDonuts.Value = 0;
-        _isOrderCompleted.Value = false;
-        wasOrderCompleted = false;
-        
-        foreach (var item in orderItems)
-        {
-            item.isCompleted = false;
-        }
-        
-        // Notificar a todos los clientes
-        ResetOrderSystemClientRpc();
-    }
-    
-    [ClientRpc]
-    private void ResetOrderSystemClientRpc()
-    {
-        // Resetear el estado local en todos los clientes
-        foreach (var item in orderItems)
-        {
-            item.isCompleted = false;
-        }
-        
-        wasOrderCompleted = false;
-        Debug.Log("[Cliente] Sistema de pedidos reiniciado");
-    }
-    
-    // Wrapper para el método legacy, para mantener compatibilidad
+    // Método público para resetear el sistema
     public void ResetOrderSystem()
     {
-        if (NetworkManager.Singleton.IsConnectedClient)
+        if (!IsServer) return;
+
+        completedCups.Value = 0;
+        completedDonuts.Value = 0;
+        isOrderCompleted.Value = false;
+
+        foreach (var item in orderItems)
         {
-            ResetOrderSystemServerRpc(NetworkManager.Singleton.LocalClientId);
+            item.isCompleted = false;
         }
-        else
+    }
+    private void CheckOrderCompletion()
+    {
+        if (!IsServer || isOrderCompleted.Value) return;
+
+        if (completedCups.Value == totalCups.Value && completedDonuts.Value == totalDonuts.Value)
         {
-            // Modo local/no-red
-            foreach (var item in orderItems)
-            {
-                item.isCompleted = false;
-            }
-            wasOrderCompleted = false;
+            isOrderCompleted.Value = true;
+            PlaySoundClientRpc("orderCompleted"); // Envía el identificador
+            onOrderCompleted?.Invoke();
         }
     }
 }
