@@ -10,7 +10,7 @@ public class OrderCompletionSystem : NetworkBehaviour
     {
         public string itemName;
         public UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor socket;
-        public bool isCompleted = false;
+        public NetworkVariable<bool> isCompleted = new(false);
         
         [Tooltip("Tipo de item: 0 = Taza, 1 = Donut")]
         public int itemType = 0; // 0 = Taza, 1 = Donut
@@ -51,16 +51,18 @@ public class OrderCompletionSystem : NetworkBehaviour
         }
 
         // Registrar eventos para cada socket
-        if (IsServer)
-        {
-            foreach (var item in orderItems)
+        
+            foreach (var socketItem in orderItems)
             {
-                if (item.socket != null)
+                var itemCopy = socketItem;
+                if (itemCopy.socket != null)
                 {
-                    item.socket.selectEntered.AddListener((args) => OnItemPlaced(item, args.interactableObject));
+                    itemCopy.socket.selectEntered.AddListener((args) =>
+                    {
+                        if (IsServer) OnItemPlaced(itemCopy, args.interactableObject);
+                    });
                 }
             }
-        }
         
         // Inicializar contadores
         completedCups.Value = 0;
@@ -82,7 +84,7 @@ public class OrderCompletionSystem : NetworkBehaviour
 
     private void OnItemPlaced(OrderItem item, UnityEngine.XR.Interaction.Toolkit.Interactables.IXRSelectInteractable interactable)
     {
-        if (!IsServer || item.isCompleted || isOrderCompleted.Value) return;
+        if (!IsServer || item.isCompleted.Value || isOrderCompleted.Value) return;
 
         GameObject placedObject = interactable.transform.gameObject;
 
@@ -117,7 +119,7 @@ public class OrderCompletionSystem : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        item.isCompleted = true;
+        item.isCompleted.Value = true;
 
         if (type == 0)
         {
@@ -129,18 +131,22 @@ public class OrderCompletionSystem : NetworkBehaviour
             completedDonuts.Value++;
             PlaySoundClientRpc("itemPlaced");
         }
+        NetworkManager.Singleton.CustomMessagingManager.SendNamedMessageToAll("UpdateUI", new FastBufferWriter());
     }
 
     [ClientRpc]
     private void PlaySoundClientRpc(string soundType)
     {
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
         switch (soundType)
         {
             case "itemPlaced":
                 if (itemPlacedSound != null) audioSource.PlayOneShot(itemPlacedSound);
+                else Debug.LogWarning("No se asignó itemPlacedSound");
                 break;
             case "orderCompleted":
                 if (orderCompletedSound != null) audioSource.PlayOneShot(orderCompletedSound);
+                else Debug.LogWarning("No se asignó orderCompletedSound");
                 break;
         }
     }
@@ -156,7 +162,7 @@ public class OrderCompletionSystem : NetworkBehaviour
 
         foreach (var item in orderItems)
         {
-            item.isCompleted = false;
+            item.isCompleted.Value = false;
         }
     }
     private void CheckOrderCompletion()
