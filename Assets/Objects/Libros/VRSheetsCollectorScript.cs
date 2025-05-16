@@ -33,13 +33,13 @@ public class NetworkedSheetsCollector : NetworkBehaviour
         "¡Tu puedes lograrlo!"
     };
 
-    // Variables de red
-    private NetworkVariable<int> currentFilledSockets = new NetworkVariable<int>(1);
-    private NetworkVariable<int> requiredObjects = new NetworkVariable<int>(3); // Valor predeterminado para 1 jugador
-    private NetworkVariable<bool> rewardDelivered = new NetworkVariable<bool>(false);
+    // Variables de red con permisos de escritura para el servidor
+    private NetworkVariable<int> currentFilledSockets = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private NetworkVariable<int> requiredObjects = new NetworkVariable<int>(3, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server); // Valor predeterminado para 1 jugador
+    private NetworkVariable<bool> rewardDelivered = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     
     private AudioSource audioSource;
-    private int previousSocketCount = 1; // Para detectar cambios en currentFilledSockets
+    private int previousSocketCount = 0; // Para detectar cambios en currentFilledSockets
 
     private void Awake()
     {
@@ -81,10 +81,17 @@ public class NetworkedSheetsCollector : NetworkBehaviour
         
         // Suscribirse a los cambios de la variable de red
         currentFilledSockets.OnValueChanged += OnFilledSocketsChanged;
+        requiredObjects.OnValueChanged += OnRequiredObjectsChanged;
         
         // Inicializar el texto de progreso
         UpdateProgressText();
     }
+
+    private void OnRequiredObjectsChanged(int previous, int current)
+    {
+        UpdateProgressText();
+    }
+
 
     public override void OnNetworkDespawn()
     {
@@ -98,6 +105,7 @@ public class NetworkedSheetsCollector : NetworkBehaviour
         
         // Desuscribirse de los eventos de la variable de red
         currentFilledSockets.OnValueChanged -= OnFilledSocketsChanged;
+        requiredObjects.OnValueChanged -= OnRequiredObjectsChanged;
         
         // Desuscribirse de los eventos para evitar memory leaks
         for (int i = 0; i < sockets.Count; i++)
@@ -149,6 +157,20 @@ public class NetworkedSheetsCollector : NetworkBehaviour
                 sockets[i].gameObject.SetActive(shouldBeActive);
             }
         }
+        SyncSocketsStateClientRpc(socketsToActivate);
+    }
+
+    [ClientRpc]
+    private void SyncSocketsStateClientRpc(int socketsToActivate)
+    {
+        for (int i = 0; i < sockets.Count; i++)
+        {
+            if (sockets[i] != null)
+            {
+                bool shouldBeActive = i < socketsToActivate;
+                sockets[i].gameObject.SetActive(shouldBeActive);
+            }
+        }
     }
 
     private void OnFilledSocketsChanged(int previous, int current)
@@ -189,12 +211,8 @@ public class NetworkedSheetsCollector : NetworkBehaviour
         // Verifica si el objeto tiene el tag correcto
         if (args.interactableObject.transform.CompareTag(targetTag))
         {
-            // Solo el servidor actualiza la variable de red
-            if (IsServer)
-            {
-                currentFilledSockets.Value++;
-                CheckCompletion();
-            }
+            // Los clientes envían un RPC al servidor para que actualice la variable de red
+            NotifySocketFilledServerRpc();
         }
         else
         {
@@ -208,16 +226,21 @@ public class NetworkedSheetsCollector : NetworkBehaviour
         }
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void NotifySocketFilledServerRpc()
+    {
+        // Solo el servidor actualiza la variable de red
+        currentFilledSockets.Value++;
+        CheckCompletion();
+    }
+
     private void OnSocketEmptied(int socketIndex, SelectExitEventArgs args)
     {
         // Verifica si el objeto tenía el tag correcto
         if (args.interactableObject.transform.CompareTag(targetTag))
         {
-            // Solo el servidor actualiza la variable de red
-            if (IsServer)
-            {
-                currentFilledSockets.Value--;
-            }
+            // Los clientes envían un RPC al servidor para que actualice la variable de red
+            NotifySocketEmptiedServerRpc();
             
             // Actualizar el texto de progreso y restaurar el color
             UpdateProgressText();
@@ -235,6 +258,13 @@ public class NetworkedSheetsCollector : NetworkBehaviour
                 progressText.color = Color.white;
             }
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void NotifySocketEmptiedServerRpc()
+    {
+        // Solo el servidor actualiza la variable de red
+        currentFilledSockets.Value--;
     }
 
     private void ShowSuccessMessage()
@@ -304,7 +334,7 @@ public class NetworkedSheetsCollector : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void DeliverRewardServerRpc()
     {
         // Notificar a todos los clientes para reproducir efectos
