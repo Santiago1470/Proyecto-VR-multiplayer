@@ -3886,6 +3886,7 @@ GameObject:
   - component: {fileID: 58324349}
   - component: {fileID: 58324348}
   - component: {fileID: 58324347}
+  - component: {fileID: 58324350}
   m_Layer: 0
   m_Name: aObjetivo (9)
   m_TagString: Untagged
@@ -4000,6 +4001,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.32027817, y: 0.29326808, z: 0.057804093}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &58324350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 58324345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5abeeeda2c026f4981c504976a74954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1001 &59060121
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11502,7 +11516,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Quiero un caf\xE9 tambien."
+  m_text: Quiero un cafe solamente
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -98609,7 +98623,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Lo mismo que los otros dos por favor
+  m_text: "A mi tambi\xE9n solo caf\xE9"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -127837,6 +127851,7 @@ GameObject:
   - component: {fileID: 1021572870}
   - component: {fileID: 1021572869}
   - component: {fileID: 1021572868}
+  - component: {fileID: 1021572871}
   m_Layer: 0
   m_Name: aObjetivo (2)
   m_TagString: Untagged
@@ -127951,6 +127966,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.32027817, y: 0.29326808, z: 0.057804093}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1021572871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1021572866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5abeeeda2c026f4981c504976a74954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!4 &1023584045 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: bf675be35c8a5d540bcba3bfdbea8d35,
@@ -128805,6 +128833,7 @@ GameObject:
   - component: {fileID: 1034356390}
   - component: {fileID: 1034356389}
   - component: {fileID: 1034356388}
+  - component: {fileID: 1034356391}
   m_Layer: 0
   m_Name: aObjetivo (7)
   m_TagString: Untagged
@@ -128919,6 +128948,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.32027817, y: 0.29326808, z: 0.057804093}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1034356391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1034356386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5abeeeda2c026f4981c504976a74954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &1035377253
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -131461,7 +131503,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Quiero un caf\xE9!"
+  m_text: "Un caf\xE9 por favor tambi\xE9n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -139800,6 +139842,7 @@ GameObject:
   - component: {fileID: 1113214719}
   - component: {fileID: 1113214718}
   - component: {fileID: 1113214717}
+  - component: {fileID: 1113214720}
   m_Layer: 0
   m_Name: aObjetivo (4)
   m_TagString: Untagged
@@ -139914,6 +139957,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.32027817, y: 0.29326808, z: 0.057804093}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1113214720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113214715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5abeeeda2c026f4981c504976a74954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &1113336747
 GameObject:
   m_ObjectHideFlags: 0
@@ -140720,6 +140776,7 @@ GameObject:
   - component: {fileID: 1117462787}
   - component: {fileID: 1117462786}
   - component: {fileID: 1117462785}
+  - component: {fileID: 1117462788}
   m_Layer: 0
   m_Name: aObjetivo (5)
   m_TagString: Untagged
@@ -140834,6 +140891,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.32027817, y: 0.29326808, z: 0.057804093}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1117462788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1117462783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5abeeeda2c026f4981c504976a74954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &1118764210
 GameObject:
   m_ObjectHideFlags: 0
@@ -141435,6 +141505,7 @@ GameObject:
   - component: {fileID: 1125726283}
   - component: {fileID: 1125726282}
   - component: {fileID: 1125726281}
+  - component: {fileID: 1125726284}
   m_Layer: 0
   m_Name: aObjetivo (8)
   m_TagString: Untagged
@@ -141549,6 +141620,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.32027817, y: 0.29326808, z: 0.057804093}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1125726284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1125726279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5abeeeda2c026f4981c504976a74954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &1127100472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173859,7 +173943,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Tambien quiero un caf\xE9 y dona"
+  m_text: "Uhm, yo quiero un caf\xE9"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -198160,7 +198244,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Quiero un caf\xE9 y una dona por favor"
+  m_text: Yo tambien quiero una dona
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -203230,7 +203314,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Quiero un caf\xE9 y una dona"
+  m_text: Yo quiero una dona
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -209774,6 +209858,7 @@ GameObject:
   - component: {fileID: 1660353799}
   - component: {fileID: 1660353796}
   - component: {fileID: 1660353800}
+  - component: {fileID: 1660353801}
   m_Layer: 0
   m_Name: aObjetivo
   m_TagString: Untagged
@@ -209888,6 +209973,19 @@ MonoBehaviour:
   m_SocketScaleMode: 0
   m_FixedScale: {x: 1, y: 1, z: 1}
   m_TargetBoundsSize: {x: 1, y: 1, z: 1}
+--- !u!114 &1660353801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660353794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5abeeeda2c026f4981c504976a74954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &1660932062
 GameObject:
   m_ObjectHideFlags: 0
@@ -248169,12 +248267,21 @@ MonoBehaviour:
   - {fileID: 58324347}
   rewardPrefab: {fileID: 1370951201}
   spawnPoint: {fileID: 1059767221}
-  completionEffect: {fileID: 854809311}
+  spawnHeight: 5
+  fallSpeed: 2
   successSound: {fileID: 8300000, guid: 49be8f3d0d1e7124d9d075436f7f19cc, type: 3}
   socketFillSound: {fileID: 8300000, guid: 4de8eb51a629654479eff75e5ff8c516, type: 3}
+  completionEffect: {fileID: 854809311}
   progressText: {fileID: 465189204}
   targetTag: sheets
-  audioSource: {fileID: 1604815847}
+  sheetsPerPlayer: 3
+  maxPlayers: 2
+  encouragingMessages:
+  - "\xA1Sigue as\xED!"
+  - "\xA1Ya falta menos!"
+  - "\xA1Vas por buen camino!"
+  - "\xA1Casi lo tienes!"
+  - "\xA1Tu puedes lograrlo!"
 --- !u!114 &2011558593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255646,6 +255753,7 @@ GameObject:
   - component: {fileID: 2088974868}
   - component: {fileID: 2088974867}
   - component: {fileID: 2088974866}
+  - component: {fileID: 2088974869}
   m_Layer: 0
   m_Name: aObjetivo (1)
   m_TagString: Untagged
@@ -255760,6 +255868,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.32027817, y: 0.29326808, z: 0.057804093}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2088974869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088974864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5abeeeda2c026f4981c504976a74954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &2089321344
 GameObject:
   m_ObjectHideFlags: 0
@@ -255971,6 +256092,7 @@ GameObject:
   - component: {fileID: 2093224184}
   - component: {fileID: 2093224183}
   - component: {fileID: 2093224182}
+  - component: {fileID: 2093224185}
   m_Layer: 0
   m_Name: aObjetivo (3)
   m_TagString: Untagged
@@ -256085,6 +256207,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.32027817, y: 0.29326808, z: 0.057804093}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2093224185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2093224180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5abeeeda2c026f4981c504976a74954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!54 &2094636162
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -256608,6 +256743,7 @@ GameObject:
   - component: {fileID: 2101855712}
   - component: {fileID: 2101855711}
   - component: {fileID: 2101855710}
+  - component: {fileID: 2101855713}
   m_Layer: 0
   m_Name: aObjetivo (6)
   m_TagString: Untagged
@@ -256722,6 +256858,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.32027817, y: 0.29326808, z: 0.057804093}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2101855713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2101855708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5abeeeda2c026f4981c504976a74954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1001 &2102235941
 PrefabInstance:
   m_ObjectHideFlags: 0
