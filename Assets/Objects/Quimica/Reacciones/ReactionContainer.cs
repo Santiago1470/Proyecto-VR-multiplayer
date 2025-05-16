@@ -1,4 +1,3 @@
-// ReactionContainer.cs - Script principal para gestionar las reacciones químicas
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +6,7 @@ using System.Linq;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using TMPro;
+using System;
 
 public class ReactionContainer : MonoBehaviour
 {
@@ -23,6 +23,9 @@ public class ReactionContainer : MonoBehaviour
     [SerializeField] private AudioClip reactionCompleteSound, allObjectivesCompleteSound;
     [SerializeField] private float reactionVolume = 0.7f, completionVolume = 1.0f;
     
+    // Delegado para el evento de reacción completada
+    public event Action<string> OnReactionCompleted;
+    
     // Componente auxiliar que maneja los datos y lógica de química
     private ChemistryManager chemManager;
     
@@ -32,7 +35,9 @@ public class ReactionContainer : MonoBehaviour
     private int currentObjectiveIndex = 0;
     private bool finalRewardGiven = false;
     private bool reactionProcessing = false;
-
+    
+    // Control para evitar duplicar notificaciones en multiplayer
+    private HashSet<string> notifiedCompletedReactions = new HashSet<string>();
 
     private void Start()
     {
@@ -63,6 +68,9 @@ public class ReactionContainer : MonoBehaviour
         
         if (clearAllButton != null)
             clearAllButton.selectEntered.AddListener((_) => { if (elements.Count > 0 && !reactionProcessing) ClearAllElements(); });
+        
+        // Actualizar el primer objetivo
+        UpdateCurrentObjectiveText();
         
         UpdateUI();
     }
@@ -150,23 +158,35 @@ public class ReactionContainer : MonoBehaviour
     {
         reactionProcessing = true;
         
-        // Verificar si es el objetivo actual
-        if (formula == chemManager.objectiveCompounds[currentObjectiveIndex])
-            yield return CelebrateReaction(formula);
-        else if (chemManager.objectiveCompounds.Contains(formula))
-            AddCompletedReaction(formula);
-        else
-            AddCompletedReaction(formula);
-        
-        // Verificar si se han completado todos los objetivos
-        bool allCompleted = CheckAllObjectivesCompleted();
-        
-        if (allCompleted && !finalRewardGiven)
+        // Evitar procesamiento del mismo compuesto más de una vez
+        if (notifiedCompletedReactions.Contains(formula))
         {
-            yield return ShowCompletionMessage();
-            SpawnFinalReward();
-            finalRewardGiven = true;
+            reactionProcessing = false;
+            yield break;
         }
+        
+        notifiedCompletedReactions.Add(formula);
+        
+        // Verificar si es un compuesto objetivo
+        bool isObjective = chemManager.objectiveCompounds.Contains(formula);
+        bool isCurrentObjective = isObjective && 
+            currentObjectiveIndex < chemManager.objectiveCompounds.Count && 
+            formula == chemManager.objectiveCompounds[currentObjectiveIndex];
+        
+        // Celebración visual de la reacción creada
+        yield return CelebrateReaction(formula, isObjective);
+        
+        // Añadir a la lista de completados localmente
+        AddCompletedReaction(formula);
+        
+        // Avanzar al siguiente objetivo si se completó el actual
+        if (isCurrentObjective)
+        {
+            yield return RevealNextObjective();
+        }
+        
+        // Notificar al MultiplayerChemistryManager
+        OnReactionCompleted?.Invoke(formula);
         
         yield return new WaitForSeconds(1.0f);
         
@@ -177,13 +197,10 @@ public class ReactionContainer : MonoBehaviour
             UpdateFormula();
         }
         
-        if (!allCompleted)
-            UpdateNextObjective();
-        
         reactionProcessing = false;
     }
 
-    private IEnumerator CelebrateReaction(string formula)
+    private IEnumerator CelebrateReaction(string formula, bool isObjective)
     {
         if (reactionParticles != null)
         {
@@ -200,8 +217,12 @@ public class ReactionContainer : MonoBehaviour
         
         if (reactionNameText != null)
         {
-            reactionNameText.text = $"¡{chemManager.GetCompoundName(formula)} completado!";
-            reactionNameText.color = Color.green;
+            string displayText = isObjective ? 
+                $"¡{chemManager.GetCompoundName(formula)} completado (Objetivo)!" : 
+                $"¡{chemManager.GetCompoundName(formula)} completado!";
+                
+            reactionNameText.text = displayText;
+            reactionNameText.color = isObjective ? Color.green : new Color(0.3f, 0.6f, 1f);
             
             float duration = 2.0f;
             float startTime = Time.time;
@@ -216,8 +237,6 @@ public class ReactionContainer : MonoBehaviour
             reactionNameText.transform.localScale = Vector3.one;
             reactionNameText.color = Color.white;
         }
-        
-        AddCompletedReaction(formula);
     }
 
     private IEnumerator StopParticlesAfterDelay(float duration)
@@ -227,62 +246,109 @@ public class ReactionContainer : MonoBehaviour
             reactionParticles.Stop();
     }
 
-    private IEnumerator ShowCompletionMessage()
-    {
-        yield return new WaitForSeconds(1.5f);
-        
-        if (audioSource != null && allObjectivesCompleteSound != null)
-        {
-            audioSource.volume = completionVolume;
-            audioSource.PlayOneShot(allObjectivesCompleteSound);
-        }
-        
-        if (reactionNameText != null)
-        {
-            reactionNameText.text = "¡TODOS LOS OBJETIVOS COMPLETADOS!";
-            reactionNameText.color = new Color(1f, 0.84f, 0f);
-        }
-        
-        if (objectiveText != null)
-        {
-            objectiveText.text = "<b>¡Todos los objetivos completados!</b>";
-            objectiveText.color = Color.green;
-        }
-    }
-
     private void AddCompletedReaction(string formula)
     {
         if (!completedReactions.Contains(formula))
         {
             completedReactions.Add(formula);
             UpdateCompletedReactionsText();
-            UpdateObjectiveText();
+            
+            // Si es el objetivo actual, actualizar el índice
+            if (currentObjectiveIndex < chemManager.objectiveCompounds.Count && 
+                formula == chemManager.objectiveCompounds[currentObjectiveIndex])
+            {
+                currentObjectiveIndex++;
+                UpdateCurrentObjectiveText();
+            }
         }
     }
-
-    private bool CheckAllObjectivesCompleted()
+    
+    private IEnumerator RevealNextObjective()
     {
-        return chemManager.objectiveCompounds.All(obj => completedReactions.Contains(obj));
-    }
-
-    private void UpdateNextObjective()
-    {
-        for (int i = 0; i < chemManager.objectiveCompounds.Count; i++)
+        // Efectos visuales para revelar el siguiente objetivo
+        if (objectiveText != null)
         {
-            if (!completedReactions.Contains(chemManager.objectiveCompounds[i]))
+            // Hacer desaparecer el texto actual
+            float fadeDuration = 0.5f;
+            float startTime = Time.time;
+            Color startColor = objectiveText.color;
+            Color transparentColor = new Color(startColor.r, startColor.g, startColor.b, 0);
+            
+            while (Time.time - startTime < fadeDuration)
             {
-                currentObjectiveIndex = i;
-                UpdateObjectiveText();
-                break;
+                float t = (Time.time - startTime) / fadeDuration;
+                objectiveText.color = Color.Lerp(startColor, transparentColor, t);
+                yield return null;
             }
+            
+            // Actualizar al siguiente objetivo
+            UpdateCurrentObjectiveText();
+            
+            // Hacer aparecer el nuevo texto
+            startTime = Time.time;
+            while (Time.time - startTime < fadeDuration)
+            {
+                float t = (Time.time - startTime) / fadeDuration;
+                objectiveText.color = Color.Lerp(transparentColor, startColor, t);
+                yield return null;
+            }
+            
+            objectiveText.color = startColor;
+        }
+        
+        // Si hemos completado todos los objetivos
+        if (currentObjectiveIndex >= chemManager.objectiveCompounds.Count && !finalRewardGiven)
+        {
+            yield return CelebrateAllObjectivesCompleted();
+        }
+    }
+    
+    private IEnumerator CelebrateAllObjectivesCompleted()
+    {
+        if (audioSource != null && allObjectivesCompleteSound != null)
+        {
+            audioSource.volume = completionVolume;
+            audioSource.PlayOneShot(allObjectivesCompleteSound);
+        }
+        
+        // Mostrar mensaje de felicitación
+        if (objectiveText != null)
+        {
+            objectiveText.text = "<color=#FFD700><b>¡TODOS LOS OBJETIVOS COMPLETADOS!</b></color>";
+            
+            // Efecto de pulsación
+            float duration = 3.0f;
+            float startTime = Time.time;
+            
+            while (Time.time - startTime < duration)
+            {
+                float scale = 1.0f + 0.2f * Mathf.Sin((Time.time - startTime) * 5f);
+                objectiveText.transform.localScale = new Vector3(scale, scale, scale);
+                yield return null;
+            }
+            
+            objectiveText.transform.localScale = Vector3.one;
+        }
+        
+        // Generar recompensa si está configurada
+        if (finalRewardPrefab != null && rewardSpawnPoint != null && !finalRewardGiven)
+        {
+            GameObject reward = Instantiate(finalRewardPrefab, rewardSpawnPoint.position, Quaternion.identity);
+            if (reward.GetComponent<Rigidbody>() != null)
+            {
+                reward.GetComponent<Rigidbody>().AddForce(UnityEngine.Random.insideUnitSphere * rewardDropForce, ForceMode.Impulse);
+                reward.GetComponent<Rigidbody>().AddTorque(UnityEngine.Random.insideUnitSphere * rewardDropForce, ForceMode.Impulse);
+            }
+            
+            finalRewardGiven = true;
         }
     }
     
     private void UpdateUI()
     {
         UpdateFormula();
-        UpdateObjectiveText();
         UpdateCompletedReactionsText();
+        UpdateCurrentObjectiveText();
     }
 
     private void UpdateCompletedReactionsText()
@@ -307,38 +373,44 @@ public class ReactionContainer : MonoBehaviour
             completedReactionsText.text = "<b>Reacciones completadas:</b>\nNinguna todavía";
         }
     }
-
-    private void UpdateObjectiveText()
+    
+    private void UpdateCurrentObjectiveText()
     {
-        if (objectiveText == null || chemManager.objectiveCompounds.Count == 0) return;
+        if (objectiveText == null) return;
         
-        bool allCompleted = CheckAllObjectivesCompleted();
+        // Si se han completado todos los objetivos
+        if (currentObjectiveIndex >= chemManager.objectiveCompounds.Count)
+        {
+            objectiveText.text = "<color=#FFD700><b>¡TODOS LOS OBJETIVOS COMPLETADOS!</b></color>";
+            return;
+        }
         
-        objectiveText.text = allCompleted 
-            ? "<b>¡Todos los objetivos completados!</b>" 
-            : $"<b>Objetivo:</b> Crear {chemManager.GetCompoundName(chemManager.objectiveCompounds[currentObjectiveIndex])}";
+        // Mostrar sólo el objetivo actual
+        string currentObjective = chemManager.objectiveCompounds[currentObjectiveIndex];
+        string objectiveName = chemManager.GetCompoundName(currentObjective);
         
-        objectiveText.color = allCompleted ? Color.green : Color.white;
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        sb.AppendLine("<b>Objetivo Actual:</b>");
+        sb.AppendLine($"Crear: <color=#FFFFFF>{objectiveName}</color>");
+        
+        // Opcionalmente mostrar progreso
+        if (currentObjectiveIndex > 0)
+        {
+            sb.AppendLine($"\n<size=80%>Progreso: {currentObjectiveIndex}/{chemManager.objectiveCompounds.Count}</size>");
+        }
+        
+        objectiveText.text = sb.ToString();
     }
     
-    private void SpawnFinalReward()
+    // Método público para verificar si un compuesto ya ha sido completado
+    public bool IsCompoundCompleted(string formula)
     {
-        if (finalRewardPrefab == null) return;
+        return completedReactions.Contains(formula);
+    }
 
-        Vector3 spawnPosition = rewardSpawnPoint != null 
-            ? rewardSpawnPoint.position 
-            : transform.position + Vector3.up * rewardDropHeight;
-
-        GameObject reward = Instantiate(finalRewardPrefab, spawnPosition, Random.rotation);
-        Rigidbody rb = reward.GetComponent<Rigidbody>() ?? reward.AddComponent<Rigidbody>();
-        
-        rb.linearDamping = 3.0f;
-        rb.angularDamping = 2.0f;
-        
-        rb.AddForce(new Vector3(Random.Range(-0.1f, 0.1f), -rewardDropForce, Random.Range(-0.1f, 0.1f)), 
-                    ForceMode.Impulse);
-        
-        rb.AddTorque(new Vector3(Random.Range(-0.2f, 0.2f), Random.Range(-0.2f, 0.2f), Random.Range(-0.2f, 0.2f)), 
-                     ForceMode.Impulse);
+    // Método público para obtener la lista de reacciones completadas
+    public List<string> GetCompletedReactions()
+    {
+        return new List<string>(completedReactions);
     }
 }
