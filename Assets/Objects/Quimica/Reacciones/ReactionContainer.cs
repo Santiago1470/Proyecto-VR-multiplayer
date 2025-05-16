@@ -33,6 +33,7 @@ public class ReactionContainer : MonoBehaviour
     private bool finalRewardGiven = false;
     private bool reactionProcessing = false;
 
+
     private void Start()
     {
         // Inicializar el gestor de química

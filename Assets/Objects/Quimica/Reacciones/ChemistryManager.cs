@@ -4,11 +4,16 @@ using System.Linq;
 
 public class ChemistryManager : MonoBehaviour
 {
-    // Objetivos de reacciones
-    [HideInInspector] public List<string> objectiveCompounds = new List<string>() { 
-        "H2O", "CO2", "NH3", "CH4", "H2SO4", "Cl2", "C2H5OH", "HCl" 
+    [HideInInspector] public List<string> objectiveCompounds;
+
+    private List<string> allCompounds = new List<string>() {
+        "H2O", "CO2", "NH3", "CH4", "H2SO4", "Cl2", "C2H5OH", "HCl"
     };
 
+    private void Awake()
+    {
+        objectiveCompounds = allCompounds.OrderBy(_ => Random.value).Take(3).ToList();
+    }
     // Diccionario de colores para compuestos químicos
     private readonly Dictionary<string, Color> chemicalCompounds = new Dictionary<string, Color>() {
         {"H2O", new Color(0f, 0.6f, 1f, 0.8f)},
