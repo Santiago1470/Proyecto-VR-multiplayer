@@ -22,7 +22,6 @@ public class MartilloGolpe : MonoBehaviour
         grabInteractable = GetComponent<XRGrabInteractable>();
         rb = GetComponent<Rigidbody>();
 
-        // Agregamos automáticamente un AudioSource si no hay
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
@@ -68,14 +67,14 @@ public class MartilloGolpe : MonoBehaviour
 
             if (fuerzaImpacto >= fuerzaMinimaReparar)
             {
-                // Reproducir efectos
+                // Reproducir efectos visuales y sonoros localmente
                 ReproducirEfectos(collision.contacts[0].point, collision.contacts[0].normal);
 
-                // Reparar el carro
+                // Pedir reparación al servidor
                 CarroRepair reparador = collision.gameObject.GetComponent<CarroRepair>();
                 if (reparador != null)
                 {
-                    reparador.Reparar();
+                    reparador.SolicitarReparacion(); // Esta llama a RepararServerRpc internamente
                 }
             }
             else
@@ -87,18 +86,16 @@ public class MartilloGolpe : MonoBehaviour
 
     private void ReproducirEfectos(Vector3 posicionImpacto, Vector3 normalImpacto)
     {
-        // Reproducir sonido
         if (sonidoGolpe != null && audioSource != null)
         {
             audioSource.PlayOneShot(sonidoGolpe);
         }
 
-        // Instanciar partículas
         if (efectoChispas != null)
         {
             ParticleSystem particulas = Instantiate(efectoChispas, posicionImpacto, Quaternion.LookRotation(normalImpacto));
             particulas.Play();
-            Destroy(particulas.gameObject, 2f); // destruir las partículas después de 2 segundos
+            Destroy(particulas.gameObject, 2f);
         }
     }
 
@@ -108,3 +105,4 @@ public class MartilloGolpe : MonoBehaviour
         estaEnMano = enMano;
     }
 }
+

@@ -4,45 +4,43 @@ using System.Collections;
 
 public class VRPhotoCapture : MonoBehaviour
 {
-    public Camera phoneCamera; // Cámara del celular
-    public GameObject cuadroTexto; // Texto que se muestra al tomar la foto
-    public AudioSource sonidoCamara; // Opcional
+    public Camera phoneCamera;
+    public GameObject cuadroTexto;
+    public AudioSource sonidoCamara;
 
-    public GameObject objetoObjetivo; // Objeto que será revelado al verlo con la cámara
-    public string nuevaCapa = "Default"; // Capa a cambiar al ser visible
-    private bool yaRevelado = false;
+    public GameObject objetoObjetivo;
+    public GameObject objetoParaMostrar;
+    public string nuevaCapa = "Default";
+
+    private bool objetivoRevelado = false;
+    private bool mostrarRevelado = false;
 
     void Update()
     {
-        DetectarObjetoEnCamara();
+        DetectarYRevelarObjeto(objetoObjetivo, ref objetivoRevelado);
+        DetectarYRevelarObjeto(objetoParaMostrar, ref mostrarRevelado);
     }
 
-    void DetectarObjetoEnCamara()
+    void DetectarYRevelarObjeto(GameObject obj, ref bool yaRevelado)
     {
-        if (yaRevelado || phoneCamera == null || objetoObjetivo == null)
+        if (yaRevelado || phoneCamera == null || obj == null)
             return;
 
-        Renderer[] renderers = objetoObjetivo.GetComponentsInChildren<Renderer>();
+        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
         if (renderers.Length == 0)
             return;
 
         Plane[] planes = GeometryUtility.CalculateFrustumPlanes(phoneCamera);
-        bool enVista = false;
-
         foreach (Renderer rend in renderers)
         {
             if (GeometryUtility.TestPlanesAABB(planes, rend.bounds))
             {
-                enVista = true;
+                CambiarCapaRecursivamente(obj.transform, LayerMask.NameToLayer(nuevaCapa));
+                obj.SetActive(true);
+                yaRevelado = true;
+                Debug.Log($"Objeto {obj.name} revelado al estar en vista.");
                 break;
             }
-        }
-
-        if (enVista)
-        {
-            CambiarCapaRecursivamente(objetoObjetivo.transform, LayerMask.NameToLayer(nuevaCapa));
-            yaRevelado = true;
-            Debug.Log("Objeto revelado al estar dentro de la vista de la cámara del celular.");
         }
     }
 
@@ -55,7 +53,6 @@ public class VRPhotoCapture : MonoBehaviour
         }
     }
 
-    // Esta parte aún puede usarse si decides permitir tomar fotos
     public void TomarFoto()
     {
         StartCoroutine(CapturarFoto());
@@ -81,3 +78,4 @@ public class VRPhotoCapture : MonoBehaviour
             sonidoCamara.Play();
     }
 }
+
