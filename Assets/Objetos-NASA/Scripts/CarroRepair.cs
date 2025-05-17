@@ -66,4 +66,3 @@ public class CarroRepair : MonoBehaviour
         Debug.Log($"Parte animada: {parte.name}");
     }
 }
-
