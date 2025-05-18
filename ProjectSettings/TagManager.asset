@@ -16,6 +16,7 @@ TagManager:
   - Coffee
   - Carro
   - sheets
+  - capsule
   layers:
   - Default
   - TransparentFX
