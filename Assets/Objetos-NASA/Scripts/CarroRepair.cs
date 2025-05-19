@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro; // Importar TextMeshPro
 using System.Collections;
 using System.Collections.Generic;
 
@@ -6,7 +7,6 @@ public class CarroRepair : MonoBehaviour
 {
     [Header("Partes separadas del carro")]
     public List<Transform> partesSeparadas;
-
     private int indiceParteActual = 0;
 
     [Header("Configuración de reparación")]
@@ -14,9 +14,18 @@ public class CarroRepair : MonoBehaviour
     public Vector3 rotacionObjetivoLocal = new Vector3(-90f, 0f, 0f);
 
     [Header("Animación")]
-    public float duracionAnimacion = 0.5f; // Tiempo en segundos que tarda en acomodarse
+    public float duracionAnimacion = 0.5f;
 
-    public SlidingDoorCar puertaAutomatica;  // Arrastra aquí el objeto con el script SlidingDoor
+    [Header("Puerta automática")]
+    public SlidingDoorCar puertaAutomatica;
+
+    [Header("UI")]
+    public TMP_Text textoEstado; // TextMeshPro
+
+    private void Start()
+    {
+        ActualizarTextoEstado(); // Mostrar estado inicial
+    }
 
     public void Reparar()
     {
@@ -26,15 +35,30 @@ public class CarroRepair : MonoBehaviour
             StartCoroutine(AnimarReparacion(parte));
             indiceParteActual++;
 
+            ActualizarTextoEstado();
+
             if (indiceParteActual >= partesSeparadas.Count && puertaAutomatica != null)
             {
                 puertaAutomatica.AbrirPuertas();
             }
-
         }
         else
         {
             Debug.Log("¡Todas las partes ya están reparadas!");
+        }
+    }
+
+    private void ActualizarTextoEstado()
+    {
+        if (textoEstado == null) return;
+
+        if (indiceParteActual < partesSeparadas.Count)
+        {
+            textoEstado.text = $"Vehículo en reparación:\nParte {indiceParteActual} de {partesSeparadas.Count}";
+        }
+        else
+        {
+            textoEstado.text = "Vehículo reparado completamente";
         }
     }
 
@@ -59,10 +83,10 @@ public class CarroRepair : MonoBehaviour
             yield return null;
         }
 
-        // Asegurarse que al final quede bien colocado
         parte.localPosition = posicionFinal;
         parte.localRotation = rotacionFinal;
 
         Debug.Log($"Parte animada: {parte.name}");
     }
 }
+
