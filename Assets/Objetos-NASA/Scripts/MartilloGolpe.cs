@@ -3,8 +3,9 @@ using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using TMPro;
 using System.Collections;
+using Unity.Netcode;
 
-public class MartilloGolpe : MonoBehaviour
+public class MartilloGolpe : NetworkBehaviour
 {
     private bool estaEnMano = false;
     private XRGrabInteractable grabInteractable;
@@ -18,11 +19,16 @@ public class MartilloGolpe : MonoBehaviour
     public ParticleSystem efectoChispas;
 
     [Header("UI Feedback")]
-    public TMP_Text textoGolpeDebil; // Asigna aquí el TextMeshPro “Golpea más fuerte”
+    public TMP_Text textoGolpeDebil; // Asigna aquí el TextMeshPro "Golpea más fuerte"
     public float duracionMensaje = 2f; // Tiempo que se mostrará el mensaje
 
     private Coroutine mensajeCoroutine;
     private AudioSource audioSource;
+
+    // Variable sincronizada para el estado del martillo
+    private NetworkVariable<bool> netEstaEnMano = new NetworkVariable<bool>(false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Owner);
 
     private void Awake()
     {
@@ -47,6 +53,29 @@ public class MartilloGolpe : MonoBehaviour
         }
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        // Suscribirse al evento de cambio de la variable de red
+        netEstaEnMano.OnValueChanged += OnEstaEnManoChanged;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        // Desuscribirse del evento
+        netEstaEnMano.OnValueChanged -= OnEstaEnManoChanged;
+
+        base.OnNetworkDespawn();
+    }
+
+    private void OnEstaEnManoChanged(bool previousValue, bool newValue)
+    {
+        // Actualizar la variable local cuando cambie el valor en la red
+        estaEnMano = newValue;
+        Debug.Log($"Estado del martillo sincronizado: {estaEnMano}");
+    }
+
     private void OnDestroy()
     {
         if (grabInteractable != null)
@@ -58,19 +87,28 @@ public class MartilloGolpe : MonoBehaviour
 
     private void OnAgarrado(SelectEnterEventArgs args)
     {
-        estaEnMano = true;
-        Debug.Log("Martillo agarrado");
+        if (IsOwner)
+        {
+            estaEnMano = true;
+            netEstaEnMano.Value = true;
+            Debug.Log("Martillo agarrado");
+        }
     }
 
     private void OnSoltado(SelectExitEventArgs args)
     {
-        estaEnMano = false;
-        Debug.Log("Martillo soltado");
+        if (IsOwner)
+        {
+            estaEnMano = false;
+            netEstaEnMano.Value = false;
+            Debug.Log("Martillo soltado");
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!estaEnMano) return;
+        // Solo el dueño del martillo procesa las colisiones
+        if (!IsOwner || !estaEnMano) return;
 
         if (collision.gameObject.CompareTag("Carro"))
         {
@@ -79,14 +117,28 @@ public class MartilloGolpe : MonoBehaviour
 
             if (fuerzaImpacto >= fuerzaMinimaReparar)
             {
-                // Reproducir efectos
-                ReproducirEfectos(collision.contacts[0].point, collision.contacts[0].normal);
+                // Reproducir efectos localmente
+                Vector3 puntoImpacto = collision.contacts[0].point;
+                Vector3 normalImpacto = collision.contacts[0].normal;
+                ReproducirEfectos(puntoImpacto, normalImpacto);
 
-                // Reparar el carro
-                CarroRepair reparador = collision.gameObject.GetComponent<CarroRepair>();
-                if (reparador != null)
+                // Notificar a todos los clientes para reproducir efectos
+                ReproducirEfectosServerRpc(puntoImpacto, normalImpacto);
+
+                // Reparar el carro a través de su NetworkBehaviour
+                NetworkObject carroNetObj = collision.gameObject.GetComponent<NetworkObject>();
+                if (carroNetObj != null)
                 {
-                    reparador.Reparar();
+                    CarroRepair reparador = collision.gameObject.GetComponent<CarroRepair>();
+                    if (reparador != null)
+                    {
+                        // Llamar al ServerRpc del carro para repararlo
+                        reparador.RepararServerRpc();
+                    }
+                }
+                else
+                {
+                    Debug.LogError("El carro no tiene componente NetworkObject!");
                 }
             }
             else
@@ -95,6 +147,22 @@ public class MartilloGolpe : MonoBehaviour
                 MostrarMensajeGolpeDebil();
             }
         }
+    }
+
+    [ServerRpc]
+    private void ReproducirEfectosServerRpc(Vector3 posicionImpacto, Vector3 normalImpacto)
+    {
+        // El servidor recibe esta llamada y luego la propaga a todos los clientes
+        ReproducirEfectosClientRpc(posicionImpacto, normalImpacto);
+    }
+
+    [ClientRpc]
+    private void ReproducirEfectosClientRpc(Vector3 posicionImpacto, Vector3 normalImpacto)
+    {
+        // No reproducir efectos de nuevo en el cliente que originó la colisión
+        if (IsOwner) return;
+
+        ReproducirEfectos(posicionImpacto, normalImpacto);
     }
 
     private void ReproducirEfectos(Vector3 posicionImpacto, Vector3 normalImpacto)
@@ -132,6 +200,10 @@ public class MartilloGolpe : MonoBehaviour
     // Método opcional manual
     public void SetMartilloEnMano(bool enMano)
     {
-        estaEnMano = enMano;
+        if (IsOwner)
+        {
+            estaEnMano = enMano;
+            netEstaEnMano.Value = enMano;
+        }
     }
 }
