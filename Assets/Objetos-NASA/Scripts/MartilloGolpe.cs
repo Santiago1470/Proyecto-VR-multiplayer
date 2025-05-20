@@ -149,11 +149,15 @@ public class MartilloGolpe : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void ReproducirEfectosServerRpc(Vector3 posicionImpacto, Vector3 normalImpacto)
     {
         // El servidor recibe esta llamada y luego la propaga a todos los clientes
-        ReproducirEfectosClientRpc(posicionImpacto, normalImpacto);
+        // Solo el servidor debe ejecutar el ClientRpc
+        if (IsServer)
+        {
+            ReproducirEfectosClientRpc(posicionImpacto, normalImpacto);
+        }
     }
 
     [ClientRpc]
