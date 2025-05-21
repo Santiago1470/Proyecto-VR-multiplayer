@@ -12,12 +12,22 @@ public class KeyItemCompletionUI : MonoBehaviour
     [Header("UI Settings")]
     public GameObject completionCanvas; // Canvas que contiene el mensaje
 
+    [Header("Particle Effects")]
+    public ParticleSystem particleEffect1; // Primer sistema de partículas
+    public ParticleSystem particleEffect2; // Segundo sistema de partículas
+
     private bool isCompleted = false;
 
     private void Start()
     {
         if (completionCanvas != null)
-            completionCanvas.SetActive(false); // Ocultar al inicio
+            completionCanvas.SetActive(false);
+
+        if (particleEffect1 != null)
+            particleEffect1.Stop();
+
+        if (particleEffect2 != null)
+            particleEffect2.Stop();
 
         InvokeRepeating("CheckKeyItems", 0f, 0.5f); // Verificación periódica
     }
@@ -73,12 +83,24 @@ public class KeyItemCompletionUI : MonoBehaviour
     {
         if (completionCanvas != null)
             completionCanvas.SetActive(true);
+
+        if (particleEffect1 != null && !particleEffect1.isPlaying)
+            particleEffect1.Play();
+
+        if (particleEffect2 != null && !particleEffect2.isPlaying)
+            particleEffect2.Play();
     }
 
     private void HideCompletionCanvas()
     {
         if (completionCanvas != null)
             completionCanvas.SetActive(false);
+
+        if (particleEffect1 != null && particleEffect1.isPlaying)
+            particleEffect1.Stop();
+
+        if (particleEffect2 != null && particleEffect2.isPlaying)
+            particleEffect2.Stop();
     }
 
     private void OnDrawGizmosSelected()
