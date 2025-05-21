@@ -157292,18 +157292,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dda2516afbace04b803e3613d6eb174, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   launchSpeed: 1
   alturaMaxima: 6
-  launchEffect: {fileID: 1529696007}
+  posicionInicio: {x: -0.52, y: -4.516, z: 0.46}
   countdownText: {fileID: 607699805}
   launchButton: {fileID: 1742720776}
   panelInstruccion: {fileID: 1935937698}
   panelInstruccionInicial: {fileID: 196237468}
-  techo: {fileID: 1744120066}
   firstButton: {fileID: 1302146551}
-  posicionInicio: {x: -0.52, y: -4.516, z: 0.46}
+  launchEffect: {fileID: 1529696007}
   audioConteo: {fileID: 2137716670}
   audioDespegue: {fileID: 1402641884}
+  techo: {fileID: 1744120066}
 --- !u!65 &1172642067
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -157463,52 +157464,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &1172642074
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 326139446}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
-  AutoOwnerAuthorityTickOffset: 1
-  PositionInterpolationType: 0
-  RotationInterpolationType: 0
-  ScaleInterpolationType: 0
-  PositionLerpSmoothing: 1
-  PositionMaxInterpolationTime: 0.1
-  RotationLerpSmoothing: 1
-  RotationMaxInterpolationTime: 0.1
-  ScaleLerpSmoothing: 1
-  ScaleMaxInterpolationTime: 0.1
-  AuthorityMode: 0
-  TickSyncChildren: 0
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
-  SlerpPosition: 0
 --- !u!114 &1172642075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157605,6 +157560,53 @@ MonoBehaviour:
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
+--- !u!114 &1172642076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 326139446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25f7d6f3d19b0524d9be4bc50efbc19a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 0
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 0
+  RotationInterpolationType: 0
+  ScaleInterpolationType: 0
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
+  AuthorityMode: 0
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 1
+  SlerpPosition: 0
+  isServerAuthoritative: 0
 --- !u!1001 &1173542119
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -172574,6 +172576,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 770c4d07a6e95e54ca9a0bcba195c74d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   rocket: {fileID: 1172642066}
   techo: {fileID: 1744120066}
   pressDepth: 0.1
@@ -181890,11 +181893,11 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3110de9689da410499dc31e271f3d175,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1172642074}
+      addedObject: {fileID: 1172642075}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3110de9689da410499dc31e271f3d175,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1172642075}
+      addedObject: {fileID: 1172642076}
   m_SourcePrefab: {fileID: 100100000, guid: 3110de9689da410499dc31e271f3d175, type: 3}
 --- !u!1 &1402641883
 GameObject:
@@ -238389,6 +238392,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 238e0af70b78c92419eb764d0d93308b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   rocket: {fileID: 1172642066}
 --- !u!114 &1742720786
 MonoBehaviour:
