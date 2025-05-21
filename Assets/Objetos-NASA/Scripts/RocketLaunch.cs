@@ -52,14 +52,24 @@ public class RocketLaunch : NetworkBehaviour
 
     private void OnLaunchingStateChanged(bool previousValue, bool newValue)
     {
+        Debug.Log($"RocketLaunch: Estado de lanzamiento cambió de {previousValue} a {newValue}"); // Para debug
+
         // Sincronizar efectos visuales y audio en todos los clientes
         if (newValue && !previousValue)
         {
+            Debug.Log("RocketLaunch: Reproduciendo efectos de lanzamiento!"); // Para debug
+
             if (launchEffect != null)
+            {
                 launchEffect.Play();
+                Debug.Log("RocketLaunch: Efecto de partículas reproducido!"); // Para debug
+            }
 
             if (audioDespegue != null)
+            {
                 audioDespegue.Play();
+                Debug.Log("RocketLaunch: Audio de despegue reproducido!"); // Para debug
+            }
         }
     }
 
@@ -97,16 +107,24 @@ public class RocketLaunch : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void LaunchRocketServerRpc()
     {
+        Debug.Log("RocketLaunch: LaunchRocketServerRpc llamado!"); // Para debug
+
         if (!IsServer) return;
 
+        Debug.Log("RocketLaunch: Ejecutando lanzamiento en servidor!"); // Para debug
+
         if (resetCoroutine != null)
+        {
             StopCoroutine(resetCoroutine);
+            Debug.Log("RocketLaunch: Corrutina de reset detenida!"); // Para debug
+        }
 
         // Ocultar UI en todos los clientes
         HideLaunchUIClientRpc();
 
         // Actualizar estado de lanzamiento
         isLaunching.Value = true;
+        Debug.Log("RocketLaunch: isLaunching establecido en true!"); // Para debug
     }
 
     private IEnumerator ResetIfNotLaunched()
