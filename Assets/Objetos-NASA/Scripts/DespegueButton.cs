@@ -14,6 +14,9 @@ public class DespegueButton : NetworkBehaviour
     private XRBaseInteractable interactable;
     private Vector3 originalPosition;
 
+    // Network variable para controlar el estado del botón
+    private NetworkVariable<bool> isButtonActive = new NetworkVariable<bool>(true);
+
     // Propiedad para detectar si estamos en multijugador
     private bool IsMultiplayer => NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
 
@@ -36,18 +39,33 @@ public class DespegueButton : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        // En multijugador, habilitar solo en clientes
-        if (IsMultiplayer && IsClient)
+        // Suscribirse a cambios en el estado del botón
+        if (IsMultiplayer)
         {
-            EnableInteraction();
+            isButtonActive.OnValueChanged += OnButtonActiveChanged;
+
+            // Aplicar el estado actual
+            OnButtonActiveChanged(false, isButtonActive.Value);
+
+            // En multijugador, habilitar solo en clientes
+            if (IsClient)
+            {
+                EnableInteraction();
+            }
         }
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsMultiplayer && IsClient)
+        if (IsMultiplayer)
         {
-            DisableInteraction();
+            if (isButtonActive != null)
+                isButtonActive.OnValueChanged -= OnButtonActiveChanged;
+
+            if (IsClient)
+            {
+                DisableInteraction();
+            }
         }
 
         base.OnNetworkDespawn();
@@ -59,6 +77,15 @@ public class DespegueButton : NetworkBehaviour
         if (!IsMultiplayer)
         {
             DisableInteraction();
+        }
+    }
+
+    private void OnButtonActiveChanged(bool previousValue, bool newValue)
+    {
+        gameObject.SetActive(newValue);
+        if (newValue)
+        {
+            transform.localPosition = originalPosition;
         }
     }
 
@@ -115,33 +142,29 @@ public class DespegueButton : NetworkBehaviour
 
         Debug.Log("DespegueButton: Ejecutando en servidor!");
 
-        // Lanzar el cohete
-        if (rocket != null)
+        // Verificar que el rocket existe y es válido
+        if (rocket != null && rocket.IsSpawned)
         {
             Debug.Log("DespegueButton: Llamando LaunchRocket!");
             rocket.LaunchRocket();
         }
         else
         {
-            Debug.LogError("DespegueButton: RocketLaunch reference is null!");
+            Debug.LogError("DespegueButton: RocketLaunch reference is null or not spawned!");
+            return;
         }
 
-        // Desactivar este botón en todos los clientes
-        DeactivateButtonClientRpc();
+        // Desactivar este botón usando NetworkVariable
+        isButtonActive.Value = false;
     }
 
-    [ClientRpc]
-    private void DeactivateButtonClientRpc()
+    // Método para reactivar el botón desde el servidor
+    [ServerRpc(RequireOwnership = false)]
+    public void ReactivateButtonServerRpc()
     {
-        Debug.Log("DespegueButton: Desactivando botón!");
-        gameObject.SetActive(false);
-    }
+        if (!IsServer) return;
 
-    [ClientRpc]
-    public void ReactivateButtonClientRpc()
-    {
-        gameObject.SetActive(true);
-        transform.localPosition = originalPosition;
+        isButtonActive.Value = true;
     }
 
     // ==================== SINGLEPLAYER ====================
@@ -157,6 +180,7 @@ public class DespegueButton : NetworkBehaviour
         else
         {
             Debug.LogError("DespegueButton: RocketLaunch reference is null!");
+            return;
         }
 
         // Desactivar este botón

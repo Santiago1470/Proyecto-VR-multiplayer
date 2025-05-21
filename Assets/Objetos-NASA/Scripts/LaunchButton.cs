@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -14,6 +15,9 @@ public class LaunchButton : NetworkBehaviour
 
     private Vector3 originalPosition;
     private XRBaseInteractable interactable;
+
+    // Network variable para controlar el estado del botón
+    private NetworkVariable<bool> isButtonActive = new NetworkVariable<bool>(true);
 
     // Propiedad para detectar si estamos en multijugador
     private bool IsMultiplayer => NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
@@ -37,18 +41,33 @@ public class LaunchButton : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        // En multijugador, habilitar solo en clientes
-        if (IsMultiplayer && IsClient)
+        // Suscribirse a cambios en el estado del botón
+        if (IsMultiplayer)
         {
-            EnableInteraction();
+            isButtonActive.OnValueChanged += OnButtonActiveChanged;
+
+            // Aplicar el estado actual
+            OnButtonActiveChanged(false, isButtonActive.Value);
+
+            // En multijugador, habilitar solo en clientes
+            if (IsClient)
+            {
+                EnableInteraction();
+            }
         }
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsMultiplayer && IsClient)
+        if (IsMultiplayer)
         {
-            DisableInteraction();
+            if (isButtonActive != null)
+                isButtonActive.OnValueChanged -= OnButtonActiveChanged;
+
+            if (IsClient)
+            {
+                DisableInteraction();
+            }
         }
 
         base.OnNetworkDespawn();
@@ -60,6 +79,15 @@ public class LaunchButton : NetworkBehaviour
         if (!IsMultiplayer)
         {
             DisableInteraction();
+        }
+    }
+
+    private void OnButtonActiveChanged(bool previousValue, bool newValue)
+    {
+        gameObject.SetActive(newValue);
+        if (newValue)
+        {
+            transform.localPosition = originalPosition;
         }
     }
 
@@ -110,6 +138,13 @@ public class LaunchButton : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        // Verificaciones adicionales
+        if (rocket != null && !rocket.IsSpawned)
+        {
+            Debug.LogError("LaunchButton: RocketLaunch no está spawneado correctamente!");
+            return;
+        }
+
         // Abrir el techo
         if (techo != null)
             techo.AbrirTecho();
@@ -118,21 +153,17 @@ public class LaunchButton : NetworkBehaviour
         if (rocket != null)
             rocket.StartLaunch();
 
-        // Desactivar el botón en todos los clientes
-        DeactivateButtonClientRpc();
+        // Desactivar el botón usando NetworkVariable
+        isButtonActive.Value = false;
     }
 
-    [ClientRpc]
-    private void DeactivateButtonClientRpc()
+    // Método para reactivar el botón desde el servidor
+    [ServerRpc(RequireOwnership = false)]
+    public void ReactivateButtonServerRpc()
     {
-        gameObject.SetActive(false);
-    }
+        if (!IsServer) return;
 
-    [ClientRpc]
-    public void ReactivateButtonClientRpc()
-    {
-        gameObject.SetActive(true);
-        transform.localPosition = originalPosition;
+        isButtonActive.Value = true;
     }
 
     // ==================== SINGLEPLAYER ====================

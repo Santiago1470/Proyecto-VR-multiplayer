@@ -32,6 +32,7 @@ public class RocketLaunch : NetworkBehaviour
     // Network Variables para multijugador
     private NetworkVariable<bool> isLaunching = new NetworkVariable<bool>(false);
     private NetworkVariable<bool> yaReincioNetwork = new NetworkVariable<bool>(false);
+    private NetworkVariable<bool> isCountingDown = new NetworkVariable<bool>(false);
 
     private Coroutine resetCoroutine;
 
@@ -46,16 +47,27 @@ public class RocketLaunch : NetworkBehaviour
         if (IsMultiplayer)
         {
             isLaunching.OnValueChanged += OnLaunchingStateChanged;
+            yaReincioNetwork.OnValueChanged += OnResetStateChanged;
+            isCountingDown.OnValueChanged += OnCountdownStateChanged;
         }
 
         // Inicializar posición
         transform.localPosition = posicionInicio;
+
+        Debug.Log($"RocketLaunch: NetworkSpawn completado. IsServer: {IsServer}, IsClient: {IsClient}");
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsMultiplayer && isLaunching != null)
-            isLaunching.OnValueChanged -= OnLaunchingStateChanged;
+        if (IsMultiplayer)
+        {
+            if (isLaunching != null)
+                isLaunching.OnValueChanged -= OnLaunchingStateChanged;
+            if (yaReincioNetwork != null)
+                yaReincioNetwork.OnValueChanged -= OnResetStateChanged;
+            if (isCountingDown != null)
+                isCountingDown.OnValueChanged -= OnCountdownStateChanged;
+        }
 
         base.OnNetworkDespawn();
     }
@@ -74,6 +86,16 @@ public class RocketLaunch : NetworkBehaviour
         {
             PlayLaunchEffects();
         }
+    }
+
+    private void OnResetStateChanged(bool previousValue, bool newValue)
+    {
+        Debug.Log($"RocketLaunch: Estado de reset cambió de {previousValue} a {newValue}");
+    }
+
+    private void OnCountdownStateChanged(bool previousValue, bool newValue)
+    {
+        Debug.Log($"RocketLaunch: Estado de countdown cambió de {previousValue} a {newValue}");
     }
 
     private void PlayLaunchEffects()
@@ -98,6 +120,13 @@ public class RocketLaunch : NetworkBehaviour
     {
         if (IsMultiplayer)
         {
+            // Verificar que estamos spawneados correctamente
+            if (!IsSpawned)
+            {
+                Debug.LogError("RocketLaunch: No se puede iniciar lanzamiento - objeto no spawneado");
+                return;
+            }
+
             // Modo multijugador
             StartLaunchServerRpc();
         }
@@ -113,6 +142,13 @@ public class RocketLaunch : NetworkBehaviour
     {
         if (IsMultiplayer)
         {
+            // Verificar que estamos spawneados correctamente
+            if (!IsSpawned)
+            {
+                Debug.LogError("RocketLaunch: No se puede lanzar cohete - objeto no spawneado");
+                return;
+            }
+
             // Modo multijugador
             LaunchRocketServerRpc();
         }
@@ -125,14 +161,23 @@ public class RocketLaunch : NetworkBehaviour
 
     // ==================== MULTIJUGADOR ====================
     [ServerRpc(RequireOwnership = false)]
-    public void StartLaunchServerRpc()
+    public void StartLaunchServerRpc(ServerRpcParams rpcParams = default)
     {
         if (!IsServer) return;
+
+        // Verificar que no estamos ya en proceso
+        if (isCountingDown.Value || isLaunching.Value)
+        {
+            Debug.Log("RocketLaunch: Ya hay un proceso de lanzamiento en curso");
+            return;
+        }
+
+        isCountingDown.Value = true;
         StartCoroutine(CountdownAndPrepareLaunchMultiplayer());
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void LaunchRocketServerRpc()
+    public void LaunchRocketServerRpc(ServerRpcParams rpcParams = default)
     {
         Debug.Log("RocketLaunch: LaunchRocketServerRpc llamado!");
 
@@ -148,6 +193,7 @@ public class RocketLaunch : NetworkBehaviour
 
         HideLaunchUIClientRpc();
         isLaunching.Value = true;
+        isCountingDown.Value = false;
         Debug.Log("RocketLaunch: isLaunching establecido en true!");
     }
 
@@ -176,9 +222,8 @@ public class RocketLaunch : NetworkBehaviour
         {
             UpdateCountdownTextClientRpc("¡Vuelo cancelado!");
             yield return new WaitForSeconds(2f);
+            ResetRocketClientRpc();
         }
-
-        ResetRocketClientRpc();
     }
 
     private IEnumerator ResetAfterLaunchMultiplayer()
@@ -344,6 +389,7 @@ public class RocketLaunch : NetworkBehaviour
         {
             isLaunching.Value = false;
             yaReincioNetwork.Value = false;
+            isCountingDown.Value = false;
         }
     }
 
@@ -352,7 +398,7 @@ public class RocketLaunch : NetworkBehaviour
         if (IsMultiplayer)
         {
             // Modo multijugador: solo el servidor mueve el cohete
-            if (!IsServer) return;
+            if (!IsServer || !IsSpawned) return;
 
             if (isLaunching.Value)
             {
