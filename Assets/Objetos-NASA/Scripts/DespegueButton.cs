@@ -9,10 +9,13 @@ public class DespegueButton : NetworkBehaviour
     public RocketLaunch rocket;
 
     [Header("Visual Settings")]
-    public float pressDepth = 0.02f; // Profundidad del hundimiento visual
+    public float pressDepth = 0.02f;
 
     private XRBaseInteractable interactable;
     private Vector3 originalPosition;
+
+    // Propiedad para detectar si estamos en multijugador
+    private bool IsMultiplayer => NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
 
     private void Awake()
     {
@@ -20,12 +23,21 @@ public class DespegueButton : NetworkBehaviour
         originalPosition = transform.localPosition;
     }
 
+    void Start()
+    {
+        // En singleplayer, habilitar interacción inmediatamente
+        if (!IsMultiplayer)
+        {
+            EnableInteraction();
+        }
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        // Solo habilitar interacción en clientes (no en servidor dedicado)
-        if (IsClient)
+        // En multijugador, habilitar solo en clientes
+        if (IsMultiplayer && IsClient)
         {
             EnableInteraction();
         }
@@ -33,12 +45,21 @@ public class DespegueButton : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        if (IsClient)
+        if (IsMultiplayer && IsClient)
         {
             DisableInteraction();
         }
 
         base.OnNetworkDespawn();
+    }
+
+    void OnDestroy()
+    {
+        // Cleanup para singleplayer
+        if (!IsMultiplayer)
+        {
+            DisableInteraction();
+        }
     }
 
     private void EnableInteraction()
@@ -61,13 +82,21 @@ public class DespegueButton : NetworkBehaviour
 
     private void OnButtonPressed(SelectEnterEventArgs args)
     {
-        Debug.Log("DespegueButton: Botón presionado!"); // Para debug
+        Debug.Log("DespegueButton: Botón presionado!");
 
         // Efecto visual inmediato
         transform.localPosition = originalPosition - new Vector3(0, pressDepth, 0);
 
-        // Enviar comando al servidor para lanzar el cohete
-        OnButtonPressedServerRpc();
+        if (IsMultiplayer)
+        {
+            // Modo multijugador
+            OnButtonPressedServerRpc();
+        }
+        else
+        {
+            // Modo singleplayer
+            OnButtonPressedSingleplayer();
+        }
     }
 
     private void OnButtonReleased(SelectExitEventArgs args)
@@ -76,21 +105,21 @@ public class DespegueButton : NetworkBehaviour
         transform.localPosition = originalPosition;
     }
 
+    // ==================== MULTIJUGADOR ====================
     [ServerRpc(RequireOwnership = false)]
     private void OnButtonPressedServerRpc()
     {
-        Debug.Log("DespegueButton: ServerRPC llamado!"); // Para debug
+        Debug.Log("DespegueButton: ServerRPC llamado!");
 
-        // Solo el servidor ejecuta la lógica del juego
         if (!IsServer) return;
 
-        Debug.Log("DespegueButton: Ejecutando en servidor!"); // Para debug
+        Debug.Log("DespegueButton: Ejecutando en servidor!");
 
         // Lanzar el cohete
         if (rocket != null)
         {
-            Debug.Log("DespegueButton: Llamando LaunchRocketServerRpc!"); // Para debug
-            rocket.LaunchRocketServerRpc();
+            Debug.Log("DespegueButton: Llamando LaunchRocket!");
+            rocket.LaunchRocket();
         }
         else
         {
@@ -104,13 +133,38 @@ public class DespegueButton : NetworkBehaviour
     [ClientRpc]
     private void DeactivateButtonClientRpc()
     {
-        Debug.Log("DespegueButton: Desactivando botón!"); // Para debug
+        Debug.Log("DespegueButton: Desactivando botón!");
         gameObject.SetActive(false);
     }
 
-    // Método público para reactivar el botón (llamado desde RocketLaunch)
     [ClientRpc]
     public void ReactivateButtonClientRpc()
+    {
+        gameObject.SetActive(true);
+        transform.localPosition = originalPosition;
+    }
+
+    // ==================== SINGLEPLAYER ====================
+    private void OnButtonPressedSingleplayer()
+    {
+        Debug.Log("DespegueButton: Modo singleplayer - lanzando cohete!");
+
+        // Lanzar el cohete
+        if (rocket != null)
+        {
+            rocket.LaunchRocket();
+        }
+        else
+        {
+            Debug.LogError("DespegueButton: RocketLaunch reference is null!");
+        }
+
+        // Desactivar este botón
+        gameObject.SetActive(false);
+    }
+
+    // Método público para reactivar en singleplayer
+    public void ReactivateButton()
     {
         gameObject.SetActive(true);
         transform.localPosition = originalPosition;

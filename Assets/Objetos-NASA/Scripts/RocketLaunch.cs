@@ -25,18 +25,28 @@ public class RocketLaunch : NetworkBehaviour
     [Header("Other References")]
     public TechoMover techo;
 
-    // Network Variables para sincronizar el estado
+    // Variables para singleplayer
+    private bool launching = false;
+    private bool yaReinicio = false;
+
+    // Network Variables para multijugador
     private NetworkVariable<bool> isLaunching = new NetworkVariable<bool>(false);
-    private NetworkVariable<bool> yaReinicio = new NetworkVariable<bool>(false);
+    private NetworkVariable<bool> yaReincioNetwork = new NetworkVariable<bool>(false);
 
     private Coroutine resetCoroutine;
+
+    // Propiedad para detectar si estamos en multijugador
+    private bool IsMultiplayer => NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        // Suscribirse a cambios en las variables de red
-        isLaunching.OnValueChanged += OnLaunchingStateChanged;
+        // Solo suscribirse si estamos en multijugador
+        if (IsMultiplayer)
+        {
+            isLaunching.OnValueChanged += OnLaunchingStateChanged;
+        }
 
         // Inicializar posición
         transform.localPosition = posicionInicio;
@@ -44,50 +54,106 @@ public class RocketLaunch : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        if (isLaunching != null)
+        if (IsMultiplayer && isLaunching != null)
             isLaunching.OnValueChanged -= OnLaunchingStateChanged;
 
         base.OnNetworkDespawn();
     }
 
+    void Start()
+    {
+        transform.localPosition = posicionInicio;
+    }
+
     private void OnLaunchingStateChanged(bool previousValue, bool newValue)
     {
-        Debug.Log($"RocketLaunch: Estado de lanzamiento cambió de {previousValue} a {newValue}"); // Para debug
+        Debug.Log($"RocketLaunch: Estado de lanzamiento cambió de {previousValue} a {newValue}");
 
         // Sincronizar efectos visuales y audio en todos los clientes
         if (newValue && !previousValue)
         {
-            Debug.Log("RocketLaunch: Reproduciendo efectos de lanzamiento!"); // Para debug
-
-            if (launchEffect != null)
-            {
-                launchEffect.Play();
-                Debug.Log("RocketLaunch: Efecto de partículas reproducido!"); // Para debug
-            }
-
-            if (audioDespegue != null)
-            {
-                audioDespegue.Play();
-                Debug.Log("RocketLaunch: Audio de despegue reproducido!"); // Para debug
-            }
+            PlayLaunchEffects();
         }
     }
 
+    private void PlayLaunchEffects()
+    {
+        Debug.Log("RocketLaunch: Reproduciendo efectos de lanzamiento!");
+
+        if (launchEffect != null)
+        {
+            launchEffect.Play();
+            Debug.Log("RocketLaunch: Efecto de partículas reproducido!");
+        }
+
+        if (audioDespegue != null)
+        {
+            audioDespegue.Play();
+            Debug.Log("RocketLaunch: Audio de despegue reproducido!");
+        }
+    }
+
+    // Método principal para iniciar lanzamiento (funciona en ambos modos)
+    public void StartLaunch()
+    {
+        if (IsMultiplayer)
+        {
+            // Modo multijugador
+            StartLaunchServerRpc();
+        }
+        else
+        {
+            // Modo singleplayer
+            StartLaunchSingleplayer();
+        }
+    }
+
+    // Método principal para lanzar cohete (funciona en ambos modos)
+    public void LaunchRocket()
+    {
+        if (IsMultiplayer)
+        {
+            // Modo multijugador
+            LaunchRocketServerRpc();
+        }
+        else
+        {
+            // Modo singleplayer
+            LaunchRocketSingleplayer();
+        }
+    }
+
+    // ==================== MULTIJUGADOR ====================
     [ServerRpc(RequireOwnership = false)]
     public void StartLaunchServerRpc()
     {
-        // Solo el servidor ejecuta la lógica principal
         if (!IsServer) return;
-
-        StartCoroutine(CountdownAndPrepareLaunch());
+        StartCoroutine(CountdownAndPrepareLaunchMultiplayer());
     }
 
-    private IEnumerator CountdownAndPrepareLaunch()
+    [ServerRpc(RequireOwnership = false)]
+    public void LaunchRocketServerRpc()
     {
-        // Reproducir audio de conteo en todos los clientes
-        PlayCountdownAudioClientRpc();
+        Debug.Log("RocketLaunch: LaunchRocketServerRpc llamado!");
 
-        // Ocultar panel inicial en todos los clientes
+        if (!IsServer) return;
+
+        Debug.Log("RocketLaunch: Ejecutando lanzamiento en servidor!");
+
+        if (resetCoroutine != null)
+        {
+            StopCoroutine(resetCoroutine);
+            Debug.Log("RocketLaunch: Corrutina de reset detenida!");
+        }
+
+        HideLaunchUIClientRpc();
+        isLaunching.Value = true;
+        Debug.Log("RocketLaunch: isLaunching establecido en true!");
+    }
+
+    private IEnumerator CountdownAndPrepareLaunchMultiplayer()
+    {
+        PlayCountdownAudioClientRpc();
         HidePanelInstruccionInicialClientRpc();
 
         string[] countdownSteps = { "5", "4", "3", "2", "1", "¡Despegue!" };
@@ -98,36 +164,11 @@ public class RocketLaunch : NetworkBehaviour
             yield return new WaitForSeconds(1f);
         }
 
-        // Mostrar UI de lanzamiento en todos los clientes
         ShowLaunchUIClientRpc();
-
-        resetCoroutine = StartCoroutine(ResetIfNotLaunched());
+        resetCoroutine = StartCoroutine(ResetIfNotLaunchedMultiplayer());
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void LaunchRocketServerRpc()
-    {
-        Debug.Log("RocketLaunch: LaunchRocketServerRpc llamado!"); // Para debug
-
-        if (!IsServer) return;
-
-        Debug.Log("RocketLaunch: Ejecutando lanzamiento en servidor!"); // Para debug
-
-        if (resetCoroutine != null)
-        {
-            StopCoroutine(resetCoroutine);
-            Debug.Log("RocketLaunch: Corrutina de reset detenida!"); // Para debug
-        }
-
-        // Ocultar UI en todos los clientes
-        HideLaunchUIClientRpc();
-
-        // Actualizar estado de lanzamiento
-        isLaunching.Value = true;
-        Debug.Log("RocketLaunch: isLaunching establecido en true!"); // Para debug
-    }
-
-    private IEnumerator ResetIfNotLaunched()
+    private IEnumerator ResetIfNotLaunchedMultiplayer()
     {
         yield return new WaitForSeconds(5f);
 
@@ -140,13 +181,104 @@ public class RocketLaunch : NetworkBehaviour
         ResetRocketClientRpc();
     }
 
-    private IEnumerator ResetAfterLaunch()
+    private IEnumerator ResetAfterLaunchMultiplayer()
     {
         yield return new WaitForSeconds(2f);
         ResetRocketClientRpc();
     }
 
-    // ClientRpcs para sincronizar UI y efectos
+    // ==================== SINGLEPLAYER ====================
+    private void StartLaunchSingleplayer()
+    {
+        if (audioConteo != null)
+            audioConteo.Play();
+
+        if (panelInstruccionInicial != null)
+            panelInstruccionInicial.SetActive(false);
+
+        StartCoroutine(CountdownAndPrepareLaunchSingleplayer());
+    }
+
+    private void LaunchRocketSingleplayer()
+    {
+        if (resetCoroutine != null)
+            StopCoroutine(resetCoroutine);
+
+        if (panelInstruccion != null)
+            panelInstruccion.SetActive(false);
+
+        PlayLaunchEffects();
+        launching = true;
+    }
+
+    private IEnumerator CountdownAndPrepareLaunchSingleplayer()
+    {
+        string[] countdownSteps = { "5", "4", "3", "2", "1", "¡Despegue!" };
+
+        foreach (string step in countdownSteps)
+        {
+            if (countdownText != null)
+                countdownText.text = step;
+
+            yield return new WaitForSeconds(1f);
+        }
+
+        if (panelInstruccion != null)
+            panelInstruccion.SetActive(true);
+
+        if (launchButton != null)
+            launchButton.SetActive(true);
+
+        resetCoroutine = StartCoroutine(ResetIfNotLaunchedSingleplayer());
+    }
+
+    private IEnumerator ResetIfNotLaunchedSingleplayer()
+    {
+        yield return new WaitForSeconds(5f);
+
+        if (!launching)
+        {
+            if (countdownText != null)
+                countdownText.text = "¡Vuelo cancelado!";
+
+            yield return new WaitForSeconds(2f);
+        }
+
+        ResetRocketSingleplayer();
+    }
+
+    private IEnumerator ResetAfterLaunchSingleplayer()
+    {
+        yield return new WaitForSeconds(2f);
+        ResetRocketSingleplayer();
+    }
+
+    private void ResetRocketSingleplayer()
+    {
+        if (countdownText != null)
+            countdownText.text = "";
+
+        if (panelInstruccion != null)
+            panelInstruccion.SetActive(false);
+
+        if (launchButton != null)
+            launchButton.SetActive(false);
+
+        if (firstButton != null)
+            firstButton.SetActive(true);
+
+        if (panelInstruccionInicial != null)
+            panelInstruccionInicial.SetActive(true);
+
+        if (techo != null)
+            techo.CerrarTecho();
+
+        transform.localPosition = posicionInicio;
+        launching = false;
+        yaReinicio = false;
+    }
+
+    // ==================== CLIENT RPCs (Solo multijugador) ====================
     [ClientRpc]
     private void PlayCountdownAudioClientRpc()
     {
@@ -211,23 +343,40 @@ public class RocketLaunch : NetworkBehaviour
         if (IsServer)
         {
             isLaunching.Value = false;
-            yaReinicio.Value = false;
+            yaReincioNetwork.Value = false;
         }
     }
 
     void Update()
     {
-        // Solo el servidor mueve el cohete, los clientes se sincronizan automáticamente
-        if (!IsServer) return;
-
-        if (isLaunching.Value)
+        if (IsMultiplayer)
         {
-            transform.Translate(Vector3.up * launchSpeed * Time.deltaTime);
+            // Modo multijugador: solo el servidor mueve el cohete
+            if (!IsServer) return;
 
-            if (transform.position.y >= alturaMaxima && !yaReinicio.Value)
+            if (isLaunching.Value)
             {
-                yaReinicio.Value = true;
-                StartCoroutine(ResetAfterLaunch());
+                transform.Translate(Vector3.up * launchSpeed * Time.deltaTime);
+
+                if (transform.position.y >= alturaMaxima && !yaReincioNetwork.Value)
+                {
+                    yaReincioNetwork.Value = true;
+                    StartCoroutine(ResetAfterLaunchMultiplayer());
+                }
+            }
+        }
+        else
+        {
+            // Modo singleplayer: mueve el cohete directamente
+            if (launching)
+            {
+                transform.Translate(Vector3.up * launchSpeed * Time.deltaTime);
+
+                if (transform.position.y >= alturaMaxima && !yaReinicio)
+                {
+                    yaReinicio = true;
+                    StartCoroutine(ResetAfterLaunchSingleplayer());
+                }
             }
         }
     }

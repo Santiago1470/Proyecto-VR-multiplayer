@@ -15,18 +15,30 @@ public class LaunchButton : NetworkBehaviour
     private Vector3 originalPosition;
     private XRBaseInteractable interactable;
 
+    // Propiedad para detectar si estamos en multijugador
+    private bool IsMultiplayer => NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+
     private void Awake()
     {
         originalPosition = transform.localPosition;
         interactable = GetComponent<XRBaseInteractable>();
     }
 
+    void Start()
+    {
+        // En singleplayer, habilitar interacción inmediatamente
+        if (!IsMultiplayer)
+        {
+            EnableInteraction();
+        }
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        // Solo habilitar interacción en clientes (no en servidor dedicado)
-        if (IsClient)
+        // En multijugador, habilitar solo en clientes
+        if (IsMultiplayer && IsClient)
         {
             EnableInteraction();
         }
@@ -34,12 +46,21 @@ public class LaunchButton : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        if (IsClient)
+        if (IsMultiplayer && IsClient)
         {
             DisableInteraction();
         }
 
         base.OnNetworkDespawn();
+    }
+
+    void OnDestroy()
+    {
+        // Cleanup para singleplayer
+        if (!IsMultiplayer)
+        {
+            DisableInteraction();
+        }
     }
 
     private void EnableInteraction()
@@ -65,8 +86,16 @@ public class LaunchButton : NetworkBehaviour
         // Efectos visuales locales inmediatos
         transform.localPosition = originalPosition - new Vector3(0, pressDepth, 0);
 
-        // Enviar comando al servidor
-        OnButtonPressedServerRpc();
+        if (IsMultiplayer)
+        {
+            // Modo multijugador
+            OnButtonPressedServerRpc();
+        }
+        else
+        {
+            // Modo singleplayer
+            OnButtonPressedSingleplayer();
+        }
     }
 
     private void OnButtonReleased(SelectExitEventArgs args)
@@ -75,10 +104,10 @@ public class LaunchButton : NetworkBehaviour
         transform.localPosition = originalPosition;
     }
 
+    // ==================== MULTIJUGADOR ====================
     [ServerRpc(RequireOwnership = false)]
     private void OnButtonPressedServerRpc()
     {
-        // Solo el servidor ejecuta la lógica del juego
         if (!IsServer) return;
 
         // Abrir el techo
@@ -87,7 +116,7 @@ public class LaunchButton : NetworkBehaviour
 
         // Iniciar la cuenta regresiva del cohete
         if (rocket != null)
-            rocket.StartLaunchServerRpc();
+            rocket.StartLaunch();
 
         // Desactivar el botón en todos los clientes
         DeactivateButtonClientRpc();
@@ -99,12 +128,32 @@ public class LaunchButton : NetworkBehaviour
         gameObject.SetActive(false);
     }
 
-    // Método público para reactivar el botón (llamado desde RocketLaunch)
     [ClientRpc]
     public void ReactivateButtonClientRpc()
     {
         gameObject.SetActive(true);
         transform.localPosition = originalPosition;
     }
-}
 
+    // ==================== SINGLEPLAYER ====================
+    private void OnButtonPressedSingleplayer()
+    {
+        // Abrir el techo
+        if (techo != null)
+            techo.AbrirTecho();
+
+        // Iniciar la cuenta regresiva del cohete
+        if (rocket != null)
+            rocket.StartLaunch();
+
+        // Desactivar el botón
+        gameObject.SetActive(false);
+    }
+
+    // Método público para reactivar en singleplayer
+    public void ReactivateButton()
+    {
+        gameObject.SetActive(true);
+        transform.localPosition = originalPosition;
+    }
+}
