@@ -17,6 +17,7 @@ TagManager:
   - Carro
   - sheets
   - capsule
+  - Baqueta
   layers:
   - Default
   - TransparentFX
