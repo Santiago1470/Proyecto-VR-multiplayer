@@ -19332,14 +19332,12 @@ MonoBehaviour:
     comod\xEDn que puedes usar como si fueran cualquiera de los especiales, \xA1te
     ayudar\xE1n a avanzar m\xE1s f\xE1cil!"
   - "Laboratorio Alqu\xEDmico  - #1: \xA1Reacciones en Realidad Virtual! \n\r\nObjetivo:\r\nCrea
-    8 reacciones qu\xEDmicas \xFAnicas mezclando l\xEDquidos en los tubos disponibles.
+    3 reacciones qu\xEDmicas \xFAnicas mezclando l\xEDquidos en los tubos disponibles.
     Cada reacci\xF3n requiere combinar de 2 a 4 tubos, dependiendo de la f\xF3rmula
-    qu\xEDmica a lograr. \xA1Domina todas y reclama tu recompensa final!\n\nMec\xE1nicas
-    del Juego (VR):\r\nCombina tantos tubos como necesites por reacci\xF3n (no hay
-    l\xEDmite de uso por tubo).\r\nLas mezclas incorrectas mostrar\xE1n efectos.\r\n
-    \nRecompensa Final:\r\nAl completar las 8 reacciones, un objeto 3D misterioso
-    aparecer\xE1 flotando frente a ti.\r\n\rEste objeto puede ser colocado en la
-    puerta (arrastr\xE1ndolo con tus manos VR) para \"activarla\" y cerrar el experimento."
+    qu\xEDmica a lograr.\n\nMec\xE1nicas del Juego (VR):\r\nCombina tantos tubos
+    como necesites por reacci\xF3n (no hay l\xEDmite de uso por tubo).\r\nLas mezclas
+    incorrectas no mostrar\xE1n efectos.\r\n \nRecompensa Final:\r\nAl completar
+    las 3 reacciones, un objeto 3D misterioso aparecer\xE1 flotando frente a ti."
   playerHead: {fileID: 0}
   fadeDuration: 0.3
   useDistanceCheck: 1
@@ -238235,7 +238233,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1740442597
 MonoBehaviour:
   m_ObjectHideFlags: 0
