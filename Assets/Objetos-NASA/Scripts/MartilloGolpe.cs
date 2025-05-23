@@ -136,7 +136,7 @@ public class MartilloGolpe : NetworkBehaviour
         if (collision.gameObject.CompareTag("Carro"))
         {
             float fuerzaImpacto = collision.relativeVelocity.magnitude;
-            Debug.Log("Fuerza de impacto: " + fuerzaImpacto);
+            Debug.Log($"[Cliente {(IsOwner ? "Owner" : "No Owner")}] Fuerza de impacto: {fuerzaImpacto}");
 
             if (fuerzaImpacto >= fuerzaMinimaReparar)
             {
@@ -148,14 +148,18 @@ public class MartilloGolpe : NetworkBehaviour
 
                 if (EsModoRed())
                 {
-                    // Modo multijugador: notificar a otros clientes
-                    ReproducirEfectosServerRpc(puntoImpacto, normalImpacto);
-
-                    // Reparar el carro a través del NetworkBehaviour
-                    CarroRepair reparador = collision.gameObject.GetComponent<CarroRepair>();
-                    if (reparador != null)
+                    // Obtener el NetworkObject del carro para reparar
+                    NetworkObject carroNetObj = collision.gameObject.GetComponent<NetworkObject>();
+                    if (carroNetObj != null)
                     {
-                        reparador.RepararServerRpc();
+                        ulong carroNetworkId = carroNetObj.NetworkObjectId;
+
+                        // Llamar al ServerRpc que maneja tanto efectos como reparación
+                        ProcesarGolpeCarroServerRpc(carroNetworkId, puntoImpacto, normalImpacto, fuerzaImpacto);
+                    }
+                    else
+                    {
+                        Debug.LogError("El carro no tiene componente NetworkObject!");
                     }
                 }
                 else
@@ -173,6 +177,38 @@ public class MartilloGolpe : NetworkBehaviour
                 Debug.Log("Golpe demasiado débil, no se repara.");
                 MostrarMensajeGolpeDebil();
             }
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ProcesarGolpeCarroServerRpc(ulong carroNetworkId, Vector3 posicionImpacto, Vector3 normalImpacto, float fuerza)
+    {
+        // Solo funciona en modo red y si somos el servidor
+        if (!EsModoRed() || !IsServer) return;
+
+        Debug.Log($"[Servidor] Procesando golpe en carro ID: {carroNetworkId}, Fuerza: {fuerza}");
+
+        // Buscar el NetworkObject del carro por su ID
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(carroNetworkId, out NetworkObject carroNetObj))
+        {
+            // Reparar el carro
+            CarroRepair reparador = carroNetObj.GetComponent<CarroRepair>();
+            if (reparador != null)
+            {
+                Debug.Log("[Servidor] Reparando carro...");
+                reparador.RepararServerRpc();
+            }
+            else
+            {
+                Debug.LogError("[Servidor] CarroRepair no encontrado en el carro!");
+            }
+
+            // Reproducir efectos en todos los clientes (excepto el que originó el golpe)
+            ReproducirEfectosClientRpc(posicionImpacto, normalImpacto);
+        }
+        else
+        {
+            Debug.LogError($"[Servidor] No se encontró NetworkObject con ID: {carroNetworkId}");
         }
     }
 
@@ -248,5 +284,21 @@ public class MartilloGolpe : NetworkBehaviour
     public float ObtenerFuerzaMinima()
     {
         return fuerzaMinimaReparar;
+    }
+
+    // Método de debug para verificar el estado del martillo
+    public void DebugEstado()
+    {
+        Debug.Log($"[Martillo Debug] EsModoRed: {EsModoRed()}, IsOwner: {(EsModoRed() ? IsOwner.ToString() : "N/A")}, EstaEnMano: {estaEnMano}, IsSpawned: {(EsModoRed() ? IsSpawned.ToString() : "N/A")}");
+    }
+
+    // Método para forzar la sincronización del estado (útil para debugging)
+    [ServerRpc(RequireOwnership = false)]
+    public void ForzarSincronizacionServerRpc(bool nuevoEstado)
+    {
+        if (!EsModoRed() || !IsServer) return;
+
+        Debug.Log($"[Servidor] Forzando sincronización del martillo: {nuevoEstado}");
+        netEstaEnMano.Value = nuevoEstado;
     }
 }
