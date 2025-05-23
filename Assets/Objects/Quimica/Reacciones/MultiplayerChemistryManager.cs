@@ -355,7 +355,7 @@ public class MultiplayerChemistryManager : NetworkBehaviour
             {
                 foreach (var playerData in playerObjectives)
                 {
-                    string playerLabel = playerData.PlayerId == localPlayerId ? "Tú" : $"Jugador {playerData.PlayerId}";
+                    string playerLabel = playerData.PlayerId == localPlayerId ? "Tú" : $"Jugador {playerData.PlayerId+1}";
                     string completionStatus = playerData.ObjectivesCompleted >= playerData.RequiredObjectives ? 
                         "<color=green>✓ Completado</color>" : 
                         $"{playerData.ObjectivesCompleted}/{playerData.RequiredObjectives}";
