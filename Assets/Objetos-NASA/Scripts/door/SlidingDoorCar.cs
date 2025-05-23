@@ -24,115 +24,267 @@ public class SlidingDoorCar : NetworkBehaviour
         NetworkVariableWritePermission.Server);
 
     private AudioSource audioSource;
+    private bool isAnimating = false; // Para evitar animaciones conflictivas
 
-    private void Awake()
+    // Estado local para singleplayer
+    private bool isOpenLocal = false;
+
+    // Método para verificar si estamos en modo red activo
+    private bool EsModoRed()
     {
+        return NetworkManager.Singleton != null &&
+               NetworkManager.Singleton.IsListening &&
+               IsSpawned;
+    }
+
+    private void Start()
+    {
+        // Inicializar componentes
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null && sonidoApertura != null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
+
+        // Configurar posiciones iniciales siempre
+        ConfigurarPosicionesIniciales();
+
+        // En singleplayer, inicializar inmediatamente
+        if (!EsModoRedPotencial())
+        {
+            Debug.Log("[SlidingDoorCar] Modo Singleplayer detectado en Start");
+        }
+    }
+
+    // Método adicional para detectar si hay potencial de red (NetworkManager existe)
+    private bool EsModoRedPotencial()
+    {
+        return NetworkManager.Singleton != null;
+    }
+
+    private void ConfigurarPosicionesIniciales()
+    {
+        // Asegurar que las puertas estén en posición cerrada al inicio
+        if (leftDoor != null)
+            leftDoor.localPosition = leftClosedPosition;
+
+        if (rightDoor != null)
+            rightDoor.localPosition = rightClosedPosition;
     }
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        // Suscribirse al evento de cambio del estado de las puertas
-        netIsOpen.OnValueChanged += OnDoorStateChanged;
+        Debug.Log($"[SlidingDoorCar] OnNetworkSpawn - IsServer: {IsServer}, IsClient: {IsClient}, Modo Red Activo: {EsModoRed()}");
 
-        // Si se conecta a una sesión donde las puertas ya están abiertas
-        if (netIsOpen.Value)
+        // Solo suscribirse si realmente estamos en modo red activo
+        if (EsModoRed())
         {
-            // Colocar las puertas en posición abierta inmediatamente
-            if (leftDoor != null)
-                leftDoor.localPosition = leftOpenPosition;
+            netIsOpen.OnValueChanged += OnDoorStateChanged;
 
-            if (rightDoor != null)
-                rightDoor.localPosition = rightOpenPosition;
+            Debug.Log($"[SlidingDoorCar] Estado inicial de puertas en red: {netIsOpen.Value}");
+
+            // Sincronizar estado inicial
+            if (netIsOpen.Value)
+            {
+                // Colocar las puertas en posición abierta inmediatamente
+                if (leftDoor != null)
+                    leftDoor.localPosition = leftOpenPosition;
+
+                if (rightDoor != null)
+                    rightDoor.localPosition = rightOpenPosition;
+
+                isOpenLocal = true; // Sincronizar estado local también
+            }
+            else
+            {
+                ConfigurarPosicionesIniciales();
+                isOpenLocal = false;
+            }
         }
     }
 
     public override void OnNetworkDespawn()
     {
         // Desuscribirse del evento
-        netIsOpen.OnValueChanged -= OnDoorStateChanged;
+        if (EsModoRed())
+        {
+            netIsOpen.OnValueChanged -= OnDoorStateChanged;
+        }
 
         base.OnNetworkDespawn();
     }
 
     private void OnDoorStateChanged(bool oldValue, bool newValue)
     {
-        // Cuando el estado de la puerta cambia en la red, animar localmente
+        Debug.Log($"[SlidingDoorCar] Estado de puertas cambió en red: {oldValue} -> {newValue}");
+
+        // Sincronizar estado local
+        isOpenLocal = newValue;
+
+        // Animar según el nuevo estado
         StopAllCoroutines();
+        isAnimating = false;
 
         if (newValue) // Si se abrieron las puertas
         {
-            // Reproducir sonido de apertura
-            if (audioSource != null && sonidoApertura != null)
-            {
-                audioSource.PlayOneShot(sonidoApertura);
-            }
-
-            // Animar la apertura
-            if (leftDoor != null)
-                StartCoroutine(MoveDoor(leftDoor, leftOpenPosition));
-
-            if (rightDoor != null)
-                StartCoroutine(MoveDoor(rightDoor, rightOpenPosition));
+            Debug.Log("[SlidingDoorCar] Abriendo puertas desde red...");
+            AbrirPuertasLocal();
         }
         else // Si se cerraron las puertas
         {
-            // Animar el cierre
-            if (leftDoor != null)
-                StartCoroutine(MoveDoor(leftDoor, leftClosedPosition));
-
-            if (rightDoor != null)
-                StartCoroutine(MoveDoor(rightDoor, rightClosedPosition));
+            Debug.Log("[SlidingDoorCar] Cerrando puertas desde red...");
+            CerrarPuertasLocal();
         }
     }
 
-    // Movimiento suave de las puertas (se mantiene igual)
+    // Método interno para abrir puertas localmente
+    private void AbrirPuertasLocal()
+    {
+        if (isAnimating) return;
+
+        isAnimating = true;
+
+        // Reproducir sonido de apertura
+        if (audioSource != null && sonidoApertura != null)
+        {
+            audioSource.PlayOneShot(sonidoApertura);
+        }
+
+        // Animar la apertura
+        if (leftDoor != null)
+            StartCoroutine(MoveDoor(leftDoor, leftOpenPosition));
+
+        if (rightDoor != null)
+            StartCoroutine(MoveDoor(rightDoor, rightOpenPosition));
+    }
+
+    // Método interno para cerrar puertas localmente
+    private void CerrarPuertasLocal()
+    {
+        if (isAnimating) return;
+
+        isAnimating = true;
+
+        // Animar el cierre
+        if (leftDoor != null)
+            StartCoroutine(MoveDoor(leftDoor, leftClosedPosition));
+
+        if (rightDoor != null)
+            StartCoroutine(MoveDoor(rightDoor, rightClosedPosition));
+    }
+
+    // Movimiento suave de las puertas (mejorado)
     private IEnumerator MoveDoor(Transform door, Vector3 targetPosition)
     {
-        while (Vector3.Distance(door.localPosition, targetPosition) > 0.01f)
+        if (door == null)
         {
-            door.localPosition = Vector3.Lerp(door.localPosition, targetPosition, Time.deltaTime * doorSpeed);
+            yield break;
+        }
+
+        Vector3 startPosition = door.localPosition;
+        float elapsedTime = 0f;
+        float journeyLength = Vector3.Distance(startPosition, targetPosition);
+
+        if (journeyLength < 0.01f)
+        {
+            isAnimating = false;
+            yield break;
+        }
+
+        while (elapsedTime < 1f / doorSpeed)
+        {
+            elapsedTime += Time.deltaTime;
+            float fractionOfJourney = (elapsedTime * doorSpeed);
+
+            door.localPosition = Vector3.Lerp(startPosition, targetPosition, fractionOfJourney);
             yield return null;
         }
+
         door.localPosition = targetPosition;
+        isAnimating = false;
+
+        Debug.Log($"[SlidingDoorCar] Puerta {door.name} movida a posición: {targetPosition}");
     }
 
-    // Método público para abrir las puertas
+    // Método público para abrir las puertas (funciona en ambos modos)
     public void AbrirPuertas()
     {
-        if (!netIsOpen.Value)
+        Debug.Log($"[SlidingDoorCar] AbrirPuertas llamado - EsModoRed: {EsModoRed()}, NetworkManager existe: {NetworkManager.Singleton != null}");
+
+        if (EsModoRed())
         {
-            // Si somos el servidor, podemos cambiar el estado directamente
-            if (IsServer)
+            // Modo multijugador activo
+            bool estadoActual = netIsOpen.Value;
+            Debug.Log($"[SlidingDoorCar] Estado actual en red: {estadoActual}");
+
+            if (!estadoActual)
             {
-                netIsOpen.Value = true;
+                if (IsServer)
+                {
+                    Debug.Log("[SlidingDoorCar] Servidor abriendo puertas directamente");
+                    netIsOpen.Value = true;
+                }
+                else
+                {
+                    Debug.Log("[SlidingDoorCar] Cliente solicitando apertura al servidor");
+                    AbrirPuertasServerRpc();
+                }
             }
             else
             {
-                // Si no somos servidor, pedimos cambio a través de RPC
-                AbrirPuertasServerRpc();
+                Debug.Log("[SlidingDoorCar] Las puertas ya están abiertas en red");
+            }
+        }
+        else
+        {
+            // Modo singleplayer o red no activa
+            Debug.Log($"[SlidingDoorCar] Modo singleplayer - Estado actual: {isOpenLocal}");
+
+            if (!isOpenLocal)
+            {
+                Debug.Log("[SlidingDoorCar] Abriendo puertas en singleplayer");
+                isOpenLocal = true;
+                AbrirPuertasLocal();
+            }
+            else
+            {
+                Debug.Log("[SlidingDoorCar] Las puertas ya están abiertas en singleplayer");
             }
         }
     }
 
-    // Método público para cerrar las puertas (opcional)
+    // Método público para cerrar las puertas (funciona en ambos modos)
     public void CerrarPuertas()
     {
-        if (netIsOpen.Value)
+        Debug.Log($"[SlidingDoorCar] CerrarPuertas llamado - EsModoRed: {EsModoRed()}");
+
+        if (EsModoRed())
         {
-            if (IsServer)
+            // Modo multijugador activo
+            if (netIsOpen.Value)
             {
-                netIsOpen.Value = false;
+                if (IsServer)
+                {
+                    Debug.Log("[SlidingDoorCar] Servidor cerrando puertas directamente");
+                    netIsOpen.Value = false;
+                }
+                else
+                {
+                    Debug.Log("[SlidingDoorCar] Cliente solicitando cierre al servidor");
+                    CerrarPuertasServerRpc();
+                }
             }
-            else
+        }
+        else
+        {
+            // Modo singleplayer o red no activa
+            if (isOpenLocal)
             {
-                CerrarPuertasServerRpc();
+                Debug.Log("[SlidingDoorCar] Cerrando puertas en singleplayer");
+                isOpenLocal = false;
+                CerrarPuertasLocal();
             }
         }
     }
@@ -140,17 +292,39 @@ public class SlidingDoorCar : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void AbrirPuertasServerRpc()
     {
+        Debug.Log("[SlidingDoorCar] AbrirPuertasServerRpc recibido en servidor");
+
+        if (!EsModoRed() || !IsServer)
+        {
+            Debug.LogError("[SlidingDoorCar] AbrirPuertasServerRpc llamado pero no estamos en servidor!");
+            return;
+        }
+
         if (!netIsOpen.Value)
         {
+            Debug.Log("[SlidingDoorCar] Servidor estableciendo puertas como abiertas");
             netIsOpen.Value = true;
+        }
+        else
+        {
+            Debug.Log("[SlidingDoorCar] Las puertas ya estaban abiertas en el servidor");
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void CerrarPuertasServerRpc()
     {
+        Debug.Log("[SlidingDoorCar] CerrarPuertasServerRpc recibido en servidor");
+
+        if (!EsModoRed() || !IsServer)
+        {
+            Debug.LogError("[SlidingDoorCar] CerrarPuertasServerRpc llamado pero no estamos en servidor!");
+            return;
+        }
+
         if (netIsOpen.Value)
         {
+            Debug.Log("[SlidingDoorCar] Servidor estableciendo puertas como cerradas");
             netIsOpen.Value = false;
         }
     }
@@ -158,28 +332,88 @@ public class SlidingDoorCar : NetworkBehaviour
     // Método para consultar si las puertas están abiertas
     public bool AreDoorsOpen()
     {
-        return netIsOpen.Value;
+        if (EsModoRed())
+        {
+            return netIsOpen.Value;
+        }
+        else
+        {
+            // En singleplayer, usar estado local
+            return isOpenLocal;
+        }
     }
 
-    // Los métodos OnTriggerEnter/Exit se mantienen comentados como en tu versión original
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    if (other.CompareTag("Player") && !isOpen)
-    //    {
-    //        StopAllCoroutines();
-    //        StartCoroutine(MoveDoor(leftDoor, leftOpenPosition));
-    //        StartCoroutine(MoveDoor(rightDoor, rightOpenPosition));
-    //        isOpen = true;
-    //    }
-    //}
-    //private void OnTriggerExit(Collider other)
-    //{
-    //    if (other.CompareTag("Player") && isOpen)
-    //    {
-    //        StopAllCoroutines();
-    //        StartCoroutine(MoveDoor(leftDoor, leftClosedPosition));
-    //        StartCoroutine(MoveDoor(rightDoor, rightClosedPosition));
-    //        isOpen = false;
-    //    }
-    //}
+    // Método de debug para verificar el estado
+    public void DebugEstado()
+    {
+        Debug.Log($"[SlidingDoorCar Debug] EsModoRed: {EsModoRed()}, IsServer: {(EsModoRed() ? IsServer.ToString() : "N/A")}, IsSpawned: {(EsModoRed() ? IsSpawned.ToString() : "N/A")}, PuertasAbiertas: {AreDoorsOpen()}, IsAnimating: {isAnimating}");
+
+        if (leftDoor != null)
+            Debug.Log($"Puerta izquierda posición: {leftDoor.localPosition}");
+        if (rightDoor != null)
+            Debug.Log($"Puerta derecha posición: {rightDoor.localPosition}");
+    }
+
+    // Método para forzar apertura (útil para testing)
+    [ServerRpc(RequireOwnership = false)]
+    public void ForzarAperturaServerRpc()
+    {
+        if (!EsModoRed() || !IsServer) return;
+
+        Debug.Log("[SlidingDoorCar] Forzando apertura de puertas");
+        netIsOpen.Value = true;
+    }
+
+    // Método para resetear puertas (útil para testing)
+    public void ResetearPuertas()
+    {
+        if (EsModoRed())
+        {
+            if (IsServer)
+            {
+                netIsOpen.Value = false;
+            }
+        }
+        else
+        {
+            StopAllCoroutines();
+            isOpenLocal = false;
+            ConfigurarPosicionesIniciales();
+        }
+    }
+
+    // Método adicional para testing en ambos modos
+    public void ForzarApertura()
+    {
+        if (EsModoRed())
+        {
+            if (IsServer)
+            {
+                netIsOpen.Value = true;
+            }
+            else
+            {
+                ForzarAperturaServerRpc();
+            }
+        }
+        else
+        {
+            Debug.Log("[SlidingDoorCar] Forzando apertura en singleplayer");
+            isOpenLocal = true;
+            AbrirPuertasLocal();
+        }
+    }
+
+    // Método para alternar estado (útil para testing)
+    public void AlternarPuertas()
+    {
+        if (AreDoorsOpen())
+        {
+            CerrarPuertas();
+        }
+        else
+        {
+            AbrirPuertas();
+        }
+    }
 }
