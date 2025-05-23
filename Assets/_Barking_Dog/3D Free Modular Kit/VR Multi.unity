@@ -146670,7 +146670,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  rocket: {fileID: 1172642066}
+  rocket: {fileID: 1152643754}
   techo: {fileID: 1744120066}
   pressDepth: 0.1
 --- !u!64 &1096509507
@@ -157716,10 +157716,10 @@ MonoBehaviour:
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
+  ActiveSceneSynchronization: 1
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
+  DontDestroyWithOwner: 1
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
@@ -271333,7 +271333,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  rocket: {fileID: 1172642066}
+  rocket: {fileID: 1152643754}
   pressDepth: 0.02
 --- !u!1 &1982807211 stripped
 GameObject:
