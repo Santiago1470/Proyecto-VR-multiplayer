@@ -20,7 +20,7 @@ public class CarroRepair : NetworkBehaviour
     [Header("Configuración de reparación")]
     public Vector3 posicionObjetivoLocal = Vector3.zero;
     public Vector3 rotacionObjetivoLocal = new Vector3(-90f, 0f, 0f);
-    public bool usarPosicionesRelativas = false; // Si false, las partes se quedan donde están
+    public bool usarPosicionesRelativas = true; // Si false, las partes se quedan donde están
     public bool desactivarFisicasAlReparar = true; // Desactiva Rigidbody y Colliders al reparar
 
     [Header("Animación")]
