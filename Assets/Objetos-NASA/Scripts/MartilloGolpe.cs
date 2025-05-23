@@ -25,7 +25,7 @@ public class MartilloGolpe : NetworkBehaviour
     private Coroutine mensajeCoroutine;
     private AudioSource audioSource;
 
-    // Variable sincronizada para el estado del martillo
+    // Variable sincronizada para el estado del martillo (solo multijugador)
     private NetworkVariable<bool> netEstaEnMano = new NetworkVariable<bool>(false,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Owner);
@@ -53,18 +53,32 @@ public class MartilloGolpe : NetworkBehaviour
         }
     }
 
+    // Método para verificar si estamos en modo red activo
+    private bool EsModoRed()
+    {
+        return NetworkManager.Singleton != null &&
+               NetworkManager.Singleton.IsListening &&
+               IsSpawned;
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        // Suscribirse al evento de cambio de la variable de red
-        netEstaEnMano.OnValueChanged += OnEstaEnManoChanged;
+        // Suscribirse al evento de cambio de la variable de red solo en modo multijugador
+        if (EsModoRed())
+        {
+            netEstaEnMano.OnValueChanged += OnEstaEnManoChanged;
+        }
     }
 
     public override void OnNetworkDespawn()
     {
         // Desuscribirse del evento
-        netEstaEnMano.OnValueChanged -= OnEstaEnManoChanged;
+        if (EsModoRed())
+        {
+            netEstaEnMano.OnValueChanged -= OnEstaEnManoChanged;
+        }
 
         base.OnNetworkDespawn();
     }
@@ -87,28 +101,37 @@ public class MartilloGolpe : NetworkBehaviour
 
     private void OnAgarrado(SelectEnterEventArgs args)
     {
-        if (IsOwner)
+        estaEnMano = true;
+
+        // Solo sincronizar en red si estamos en modo multijugador
+        if (EsModoRed() && IsOwner)
         {
-            estaEnMano = true;
             netEstaEnMano.Value = true;
-            Debug.Log("Martillo agarrado");
         }
+
+        Debug.Log("Martillo agarrado");
     }
 
     private void OnSoltado(SelectExitEventArgs args)
     {
-        if (IsOwner)
+        estaEnMano = false;
+
+        // Solo sincronizar en red si estamos en modo multijugador
+        if (EsModoRed() && IsOwner)
         {
-            estaEnMano = false;
             netEstaEnMano.Value = false;
-            Debug.Log("Martillo soltado");
         }
+
+        Debug.Log("Martillo soltado");
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Solo el dueño del martillo procesa las colisiones
-        if (!IsOwner || !estaEnMano) return;
+        // En multijugador, solo el dueño procesa colisiones
+        // En singleplayer, siempre procesamos si está en mano
+        bool puedeProcesar = EsModoRed() ? (IsOwner && estaEnMano) : estaEnMano;
+
+        if (!puedeProcesar) return;
 
         if (collision.gameObject.CompareTag("Carro"))
         {
@@ -117,28 +140,32 @@ public class MartilloGolpe : NetworkBehaviour
 
             if (fuerzaImpacto >= fuerzaMinimaReparar)
             {
-                // Reproducir efectos localmente
                 Vector3 puntoImpacto = collision.contacts[0].point;
                 Vector3 normalImpacto = collision.contacts[0].normal;
+
+                // Reproducir efectos localmente
                 ReproducirEfectos(puntoImpacto, normalImpacto);
 
-                // Notificar a todos los clientes para reproducir efectos
-                ReproducirEfectosServerRpc(puntoImpacto, normalImpacto);
-
-                // Reparar el carro a través de su NetworkBehaviour
-                NetworkObject carroNetObj = collision.gameObject.GetComponent<NetworkObject>();
-                if (carroNetObj != null)
+                if (EsModoRed())
                 {
+                    // Modo multijugador: notificar a otros clientes
+                    ReproducirEfectosServerRpc(puntoImpacto, normalImpacto);
+
+                    // Reparar el carro a través del NetworkBehaviour
                     CarroRepair reparador = collision.gameObject.GetComponent<CarroRepair>();
                     if (reparador != null)
                     {
-                        // Llamar al ServerRpc del carro para repararlo
                         reparador.RepararServerRpc();
                     }
                 }
                 else
                 {
-                    Debug.LogError("El carro no tiene componente NetworkObject!");
+                    // Modo singleplayer: reparar directamente
+                    CarroRepair reparador = collision.gameObject.GetComponent<CarroRepair>();
+                    if (reparador != null)
+                    {
+                        reparador.Reparar();
+                    }
                 }
             }
             else
@@ -152,19 +179,18 @@ public class MartilloGolpe : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void ReproducirEfectosServerRpc(Vector3 posicionImpacto, Vector3 normalImpacto)
     {
+        // Solo funciona en modo red y si somos el servidor
+        if (!EsModoRed() || !IsServer) return;
+
         // El servidor recibe esta llamada y luego la propaga a todos los clientes
-        // Solo el servidor debe ejecutar el ClientRpc
-        if (IsServer)
-        {
-            ReproducirEfectosClientRpc(posicionImpacto, normalImpacto);
-        }
+        ReproducirEfectosClientRpc(posicionImpacto, normalImpacto);
     }
 
     [ClientRpc]
     private void ReproducirEfectosClientRpc(Vector3 posicionImpacto, Vector3 normalImpacto)
     {
         // No reproducir efectos de nuevo en el cliente que originó la colisión
-        if (IsOwner) return;
+        if (!EsModoRed() || IsOwner) return;
 
         ReproducirEfectos(posicionImpacto, normalImpacto);
     }
@@ -201,13 +227,26 @@ public class MartilloGolpe : NetworkBehaviour
         textoGolpeDebil.gameObject.SetActive(false);
     }
 
-    // Método opcional manual
+    // Método opcional manual que funciona en ambos modos
     public void SetMartilloEnMano(bool enMano)
     {
-        if (IsOwner)
+        estaEnMano = enMano;
+
+        if (EsModoRed() && IsOwner)
         {
-            estaEnMano = enMano;
             netEstaEnMano.Value = enMano;
         }
+    }
+
+    // Método público para verificar si el martillo está en uso
+    public bool EstaEnMano()
+    {
+        return estaEnMano;
+    }
+
+    // Método para obtener la fuerza mínima requerida (útil para UI)
+    public float ObtenerFuerzaMinima()
+    {
+        return fuerzaMinimaReparar;
     }
 }
